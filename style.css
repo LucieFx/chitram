@@ -1,0 +1,1351 @@
+/* ==========================================================================
+   चित्रम् • CHITRAM DESIGN SYSTEM
+   The Artist's Studio Radio — Music for Drawing, Painting & Sketching
+   House Style: Anti-slop, Solid Atelier Wood & Linen, Editorial Broadsheet
+   ========================================================================== */
+
+/* -------------------------------------------------------------
+   1. COLOR PALETTE & TYPOGRAPHY TOKENS
+   ------------------------------------------------------------- */
+:root {
+  /* Atelier Inks & Surfaces */
+  --art-ink: #120e17;
+  --art-ink-light: #1c1624;
+  --art-panel: #241c2c;
+  --art-wood: #2a1f33;
+  --art-linen: #f7efe6;
+  --art-linen-muted: #c9bfb5;
+  --art-linen-dim: #8c8278;
+  --art-brass: #e5a93c;
+  --art-terracotta: #cf5b42;
+  --art-border: rgba(247, 239, 230, 0.12);
+  --art-border-bold: rgba(247, 239, 230, 0.22);
+
+  /* Fonts */
+  --font-serif: 'Rozha One', serif;
+  --font-brand: 'Cinzel', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* -------------------------------------------------------------
+   2. GLOBAL RESET & BASE
+   ------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--art-ink);
+  color: var(--art-linen);
+  font-family: var(--font-sans);
+}
+
+body {
+  width: 100%;
+  min-height: 100dvh;
+  background-color: var(--art-ink);
+  color: var(--art-linen);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* -------------------------------------------------------------
+   3. STUDIO BACKDROP & INTERACTIVE CANVAS
+   ------------------------------------------------------------- */
+.studio-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--art-ink);
+}
+
+.backdrop-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.18;
+  transform: scale(1.02);
+  transition: opacity 800ms ease, transform 8000ms ease-out;
+}
+
+.backdrop-image.current {
+  opacity: 0.22;
+  transform: scale(1);
+}
+
+.backdrop-image.next {
+  opacity: 0;
+}
+
+.canvas-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(18, 14, 23, 0.45) 0%, rgba(18, 14, 23, 0.95) 85%); /* taste-skill-ignore */
+}
+
+/* Interactive Splatter Canvas */
+#splatter-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+#splatter-canvas.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+.site-wrapper {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  pointer-events: none; /* Children re-enable pointer-events */
+}
+
+.site-wrapper * {
+  pointer-events: auto;
+}
+
+/* -------------------------------------------------------------
+   4. TOP NAVIGATION MASTHEAD
+   ------------------------------------------------------------- */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #17121e;
+}
+
+.masthead-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.studio-emblem {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.emblem-outer {
+  fill: var(--art-terracotta);
+}
+
+.emblem-inner {
+  fill: var(--art-ink);
+  stroke: var(--art-brass);
+  stroke-width: 1.5;
+}
+
+.palette-shape {
+  fill: none;
+  stroke: var(--art-brass);
+  stroke-width: 1.5;
+}
+
+.paint-dot {
+  fill: var(--art-linen);
+}
+
+.brand-headings {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-hindi {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--art-linen);
+}
+
+.brand-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--art-brass);
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+
+/* Studio Status Strip */
+.studio-status-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--art-ink-light);
+  border: 1px solid var(--art-border);
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.status-clock-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.clock-label {
+  font-size: 0.68rem;
+  color: var(--art-linen-dim);
+  text-transform: uppercase;
+}
+
+.clock-digits {
+  font-weight: 600;
+  color: var(--art-linen);
+}
+
+.status-separator {
+  color: var(--art-linen-dim);
+  opacity: 0.4;
+}
+
+.status-session-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.status-dot.in-session {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--art-brass);
+}
+
+.session-label {
+  font-weight: 600;
+  color: var(--art-brass);
+}
+
+.status-artists-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  color: var(--art-linen-muted);
+}
+
+.artists-digit {
+  font-weight: 600;
+  color: var(--art-linen);
+}
+
+.masthead-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nav-link {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--art-linen-muted);
+  transition: color 150ms ease;
+}
+
+.nav-link:hover {
+  color: var(--art-brass);
+}
+
+.studio-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(229, 169, 60, 0.12);
+  border: 1px solid var(--art-brass);
+  color: var(--art-brass);
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.studio-nav-btn:hover {
+  background: var(--art-brass);
+  color: var(--art-ink);
+}
+
+.studio-nav-btn.active {
+  background: var(--art-brass);
+  color: var(--art-ink);
+}
+
+.nav-svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* -------------------------------------------------------------
+   5. ARTIST'S TURNTABLE STAGE (The Tangible Object)
+   ------------------------------------------------------------- */
+.player-stage {
+  padding: 2.5rem 1.5rem 3rem 1.5rem;
+}
+
+.player-stage-inner {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.unmute-notice {
+  background: var(--art-terracotta);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+}
+
+.unmute-action {
+  background: #fff;
+  color: var(--art-terracotta);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* The Studio Turntable Console */
+.turntable-console {
+  background: var(--art-panel);
+  border: 3px solid #36293f;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Top Plate */
+.console-top-plate {
+  background: #191320;
+  border-bottom: 2px solid #2d2235;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plate-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.plate-title {
+  font-family: var(--font-brand);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--art-brass);
+}
+
+.plate-sub {
+  font-size: 0.62rem;
+  color: var(--art-linen-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.session-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(229, 169, 60, 0.12);
+  border: 1px solid var(--art-brass);
+  padding: 0.25rem 0.65rem;
+  border-radius: 3px;
+}
+
+.session-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--art-brass);
+}
+
+.session-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--art-brass);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Console Body */
+.console-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 1.5rem;
+  padding: 1.75rem;
+  background: var(--art-wood);
+}
+
+/* Vinyl Turntable Unit */
+.turntable-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.turntable-platter {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #140f1a;
+  border: 2px solid #3d2f47;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vinyl-record {
+  position: relative;
+  width: 184px;
+  height: 184px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2232 0%, #0d0a11 75%, #050407 100%); /* taste-skill-ignore */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vinyl-record.spinning {
+  animation: spinRecord 4.5s linear infinite;
+}
+
+@keyframes spinRecord {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.vinyl-groove {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(247, 239, 230, 0.05);
+}
+
+.vinyl-groove.g1 { inset: 12px; }
+.vinyl-groove.g2 { inset: 26px; }
+.vinyl-groove.g3 { inset: 40px; }
+
+.record-label-center {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--art-terracotta);
+  border: 2px solid var(--art-brass);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.record-label-title {
+  font-family: var(--font-serif);
+  font-size: 0.75rem;
+  color: #fff;
+  line-height: 1;
+}
+
+.record-label-sub {
+  font-size: 0.45rem;
+  font-weight: 700;
+  color: var(--art-brass);
+  letter-spacing: 0.1em;
+  margin-top: 0.1rem;
+}
+
+/* Tonearm */
+.turntable-tonearm {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 60px;
+  height: 110px;
+  transform-origin: 48px 12px;
+  transform: rotate(-32deg);
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.turntable-tonearm.playing {
+  transform: rotate(6deg);
+}
+
+.tonearm-pivot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--art-brass);
+}
+
+.tonearm-arm {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  width: 3px;
+  height: 84px;
+  background: var(--art-brass);
+  transform-origin: top center;
+  transform: rotate(14deg);
+}
+
+.tonearm-cartridge {
+  position: absolute;
+  bottom: 0;
+  left: 6px;
+  width: 10px;
+  height: 6px;
+  background: #fff;
+  border-radius: 1px;
+}
+
+/* Palette Swatches Strip */
+.palette-swatches-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.swatch-chip {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #3d2f47;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.swatch-chip:hover {
+  transform: scale(1.15);
+}
+
+/* Now Playing Linen Card */
+.track-linen-card {
+  background: var(--art-linen);
+  color: #1a1420;
+  border-radius: 6px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.linen-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2px solid #ded5cb;
+  padding-bottom: 0.5rem;
+}
+
+.linen-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--art-terracotta);
+}
+
+.linen-mood-cue {
+  font-size: 0.72rem;
+  color: #685970;
+  font-style: italic;
+}
+
+.linen-track-meta {
+  margin: 1.25rem 0;
+}
+
+.linen-track-title {
+  font-family: var(--font-serif);
+  font-size: 2.1rem;
+  line-height: 1.15;
+  color: #160e1d;
+  font-weight: 400;
+}
+
+.linen-track-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
+  color: #4c3e53;
+  font-weight: 500;
+}
+
+.meta-sep {
+  opacity: 0.4;
+}
+
+.track-lyrical-blurb {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #55445d;
+  margin-top: 0.85rem;
+}
+
+/* Track Scrub Rail */
+.track-scrub-container {
+  margin-top: 0.75rem;
+  cursor: pointer;
+}
+
+.scrub-rail {
+  width: 100%;
+  height: 5px;
+  background: #ded5cb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scrub-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--art-terracotta);
+  transition: width 150ms linear;
+}
+
+.scrub-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #796684;
+  margin-top: 0.35rem;
+  font-weight: 600;
+}
+
+.linen-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 2px solid #ded5cb;
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
+.studio-link-btn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--art-terracotta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.clear-paint-action {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6c5a77;
+  border: 1px solid #c9bfb5;
+  padding: 0.2rem 0.65rem;
+  border-radius: 3px;
+  transition: background 120ms ease;
+}
+
+.clear-paint-action:hover {
+  background: #ede3d7;
+  color: #1a1420;
+}
+
+/* Mechanical Keypad */
+.console-keypad {
+  background: #18121f;
+  border-top: 2px solid #2b1f35;
+  padding: 1rem 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.studio-key {
+  background: #2a1f33;
+  border: 2px solid #3f2f4c;
+  border-bottom: 4px solid #140d1a;
+  color: var(--art-linen);
+  padding: 0.65rem 1.15rem;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 68px;
+  transition: transform 60ms ease, background 60ms ease;
+}
+
+.studio-key:hover {
+  background: #362842;
+}
+
+.studio-key:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.studio-key.play-btn {
+  background: var(--art-brass);
+  border-color: #f0b548;
+  border-bottom-color: #8c6014;
+  color: var(--art-ink);
+}
+
+.studio-key.play-btn:hover {
+  background: #edb44e;
+}
+
+.studio-key.toggled {
+  color: var(--art-brass);
+}
+
+.key-svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.key-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* Volume Block */
+.console-volume-block {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: flex-end;
+}
+
+.volume-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--art-linen-dim);
+}
+
+.volume-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mute-action-btn {
+  color: var(--art-linen-muted);
+}
+
+.mute-svg {
+  width: 16px;
+  height: 16px;
+}
+
+.console-volume-slider {
+  width: 90px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #0d0912;
+  border-radius: 2px;
+  outline: none;
+}
+
+.console-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--art-linen);
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------
+   6. EDITORIAL MANIFESTO SECTION
+   ------------------------------------------------------------- */
+.editorial-section {
+  padding: 5rem 1.5rem;
+  background: var(--art-ink);
+}
+
+.editorial-container {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.section-lead {
+  margin-bottom: 2.5rem;
+}
+
+.editorial-heading-hi {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  color: var(--art-linen);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.editorial-sub-heading {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--art-brass);
+  margin-top: 0.4rem;
+  font-weight: 600;
+}
+
+.editorial-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+
+.column-text p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--art-linen-muted);
+  margin-bottom: 1.25rem;
+}
+
+.column-text em {
+  color: var(--art-linen);
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-color: rgba(229, 169, 60, 0.4);
+}
+
+/* -------------------------------------------------------------
+   7. SESSIONS SECTION (The 7 Creative Hours)
+   ------------------------------------------------------------- */
+.sessions-section {
+  padding: 5rem 1.5rem;
+  background: #18121f;
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.session-card {
+  background: rgba(247, 239, 230, 0.03);
+  border: 1px solid var(--art-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.session-card:hover {
+  border-color: var(--art-brass);
+  background: rgba(247, 239, 230, 0.06);
+}
+
+.session-card.is-active {
+  border-color: var(--art-brass);
+  background: rgba(229, 169, 60, 0.08);
+}
+
+.card-hindi-title {
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  color: var(--art-linen);
+  font-weight: 400;
+}
+
+.session-card.is-active .card-hindi-title {
+  color: var(--art-brass);
+}
+
+.card-english-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--art-linen-muted);
+  margin-top: 0.15rem;
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  color: var(--art-linen-dim);
+  margin-top: 0.85rem;
+  line-height: 1.5;
+}
+
+.card-time-slot {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--art-linen-dim);
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.session-resync-dock {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.resync-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(229, 169, 60, 0.15);
+  border: 1px solid var(--art-brass);
+  color: var(--art-brass);
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.resync-button:hover {
+  background: var(--art-brass);
+  color: var(--art-ink);
+}
+
+.resync-dot {
+  color: var(--art-brass);
+}
+
+/* -------------------------------------------------------------
+   8. SOUNDTRACK LEDGER SECTION
+   ------------------------------------------------------------- */
+.soundtrack-section {
+  padding: 5rem 1.5rem;
+  background: var(--art-ink);
+}
+
+.soundtrack-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.soundtrack-tab-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: 4px;
+  background: rgba(247, 239, 230, 0.04);
+  color: var(--art-linen-muted);
+  white-space: nowrap;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.soundtrack-tab-btn:hover {
+  color: var(--art-linen);
+  background: rgba(247, 239, 230, 0.08);
+}
+
+.soundtrack-tab-btn.active {
+  background: var(--art-brass);
+  color: var(--art-ink);
+}
+
+.soundtrack-ledger {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.track-ledger-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(247, 239, 230, 0.02);
+  border: 1px solid var(--art-border);
+  border-radius: 6px;
+  text-align: left;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.track-ledger-card:hover {
+  border-color: var(--art-brass);
+  background: rgba(247, 239, 230, 0.05);
+}
+
+.track-ledger-card.active-song {
+  border-color: var(--art-brass);
+  background: rgba(229, 169, 60, 0.08);
+}
+
+.ledger-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ledger-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--art-linen);
+  line-height: 1.25;
+}
+
+.track-ledger-card.active-song .ledger-title {
+  color: var(--art-brass);
+}
+
+.ledger-credits {
+  font-size: 0.78rem;
+  color: var(--art-linen-dim);
+  margin-top: 0.2rem;
+}
+
+.ledger-blurb {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--art-linen-muted);
+  margin-top: 0.5rem;
+}
+
+.ledger-play-stamp {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--art-brass);
+  border: 1px solid var(--art-brass);
+  padding: 0.25rem 0.55rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* -------------------------------------------------------------
+   9. FOOTER
+   ------------------------------------------------------------- */
+.site-footer {
+  padding: 4.5rem 1.5rem 6rem 1.5rem;
+  background: #0f0b13;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 3rem;
+}
+
+.footer-left {
+  max-width: 480px;
+}
+
+.footer-stamp-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.footer-devanagari {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--art-linen);
+}
+
+.footer-english {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--art-brass);
+  font-weight: 600;
+}
+
+.footer-note {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--art-linen-dim);
+  margin-bottom: 0.75rem;
+}
+
+.footer-time-signoff {
+  font-size: 0.75rem;
+  color: var(--art-linen-muted);
+}
+
+.footer-right {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.footer-nav-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-nav-heading {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--art-brass);
+  font-weight: 700;
+}
+
+.footer-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.footer-jump-btn {
+  font-size: 0.82rem;
+  color: var(--art-linen-muted);
+  text-align: left;
+  transition: color 150ms ease;
+}
+
+.footer-jump-btn:hover {
+  color: var(--art-brass);
+}
+
+/* -------------------------------------------------------------
+   10. AMBIENCE MODAL
+   ------------------------------------------------------------- */
+.modal-dimmer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(10, 8, 14, 0.7);
+}
+
+.ambience-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  width: 90%;
+  max-width: 480px;
+}
+
+.ambience-card {
+  background: var(--art-panel);
+  border: 2px solid var(--art-border-bold);
+  border-radius: 8px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8); /* taste-skill-ignore */
+}
+
+.ambience-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #33253e;
+  padding-bottom: 1rem;
+}
+
+.ambience-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  color: var(--art-linen);
+}
+
+.ambience-card-sub {
+  font-size: 0.75rem;
+  color: var(--art-linen-dim);
+  margin-top: 0.2rem;
+}
+
+.modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: rgba(247, 239, 230, 0.08);
+  color: var(--art-linen-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ambience-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ambience-channel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.channel-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.channel-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--art-linen);
+}
+
+.channel-desc {
+  font-size: 0.72rem;
+  color: var(--art-linen-dim);
+}
+
+.channel-control {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.sound-range {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #0d0912;
+  border-radius: 2px;
+  outline: none;
+}
+
+.sound-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--art-brass);
+  cursor: pointer;
+}
+
+.range-num {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--art-brass);
+  min-width: 32px;
+}
+
+.ambience-footer {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid #33253e;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.solid-btn {
+  background: var(--art-brass);
+  color: var(--art-ink);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.45rem 1rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* -------------------------------------------------------------
+   11. RESPONSIVE BREAKPOINTS
+   ------------------------------------------------------------- */
+@media (max-width: 840px) {
+  .console-body {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .turntable-unit {
+    margin-bottom: 0.5rem;
+  }
+
+  .editorial-columns {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .sessions-grid, .soundtrack-ledger {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .studio-status-strip {
+    display: none;
+  }
+
+  .console-keypad {
+    flex-wrap: wrap;
+  }
+
+  .console-volume-block {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+    align-items: flex-start;
+  }
+}

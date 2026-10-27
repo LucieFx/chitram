@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>चित्रम् • CHITRAM — The Artist’s Studio Radio</title>
+  <meta name="description" content="An intimate bohemian art studio radio for painters, illustrators, and sketchers. The light, the mood, and the melodies flow with every hour of the creative day.">
+  <meta name="theme-color" content="#120e17">
+  <meta name="color-scheme" content="dark">
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="चित्रम् • CHITRAM — Music for Drawing & Painting">
+  <meta property="og:description" content="Two brushes, one canvas, every hour of the day. Curated acoustic and indie melodies for painters and sketch artists.">
+  <meta property="og:type" content="website">
+
+  <!-- Fonts: Rozha One for Devanagari headings, Cinzel for studio brand, Inter for text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Rozha+One&display=swap" rel="stylesheet">
+
+  <!-- Preconnect to YouTube -->
+  <link rel="preconnect" href="https://www.youtube-nocookie.com">
+  <link rel="preconnect" href="https://i.ytimg.com">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "RadioStation",
+    "name": "Chitram Artist Radio",
+    "alternateName": "चित्रम्",
+    "description": "An intimate studio radio station curating acoustic, indie, and soulful melodies for drawing artists and painters.",
+    "genre": ["Art Studio", "Indie Hindi", "Acoustic", "Painting Music", "Creative Lo-Fi"],
+    "inLanguage": ["hi-IN", "en-IN"]
+  }
+  </script>
+</head>
+<body>
+  <!-- Hidden YouTube Player Container -->
+  <div id="yt-player-slot" aria-hidden="true"></div>
+
+  <!-- Studio Backdrop Artwork Layer with Smooth Crossfade -->
+  <div class="studio-backdrop" id="studio-backdrop">
+    <div class="backdrop-image current" id="backdrop-image-current"></div>
+    <div class="backdrop-image next" id="backdrop-image-next"></div>
+    <div class="canvas-scrim"></div>
+  </div>
+
+  <!-- Interactive Watercolor Splatter Layer -->
+  <canvas id="splatter-canvas" aria-label="Interactive studio painting canvas"></canvas>
+
+  <!-- Main Content Structure -->
+  <div class="site-wrapper">
+
+    <!-- Top Navigation Masthead -->
+    <header class="masthead">
+      <div class="masthead-inner">
+        <!-- Studio Brand & Emblem -->
+        <a href="#studio-deck" class="brand-link" aria-label="Chitram Studio Home">
+          <svg viewBox="0 0 44 44" class="studio-emblem" aria-hidden="true">
+            <circle cx="22" cy="22" r="20" class="emblem-outer" />
+            <circle cx="22" cy="22" r="16" class="emblem-inner" />
+            <!-- Painter Palette & Dual Brushes Motif -->
+            <path d="M15 15 C15 11, 29 11, 29 15 C29 19, 25 21, 25 25 C25 28, 28 29, 28 32 C28 35, 18 36, 15 30 Z" class="palette-shape" />
+            <circle cx="18" cy="18" r="1.5" class="paint-dot" />
+            <circle cx="24" cy="18" r="1.5" class="paint-dot" />
+            <circle cx="20" cy="23" r="1.5" class="paint-dot" />
+          </svg>
+          <div class="brand-headings">
+            <span class="brand-hindi">चित्रम्</span>
+            <span class="brand-sub">The Artist’s Studio • Live 24/7</span>
+          </div>
+        </a>
+
+        <!-- Live Status Bar -->
+        <div class="studio-status-strip">
+          <div class="status-clock-box">
+            <span class="clock-label">Studio Clock</span>
+            <span class="clock-digits" id="live-ist-clock">--:-- --</span>
+          </div>
+          <div class="status-separator" aria-hidden="true">/</div>
+          <div class="status-session-box">
+            <span class="status-dot in-session" aria-hidden="true"></span>
+            <span class="session-label" id="masthead-session-title">Late Night</span>
+          </div>
+          <div class="status-separator" aria-hidden="true">/</div>
+          <div class="status-artists-box">
+            <span class="artists-digit" id="live-artists-count">24</span>
+            <span class="artists-text">artists painting</span>
+          </div>
+        </div>
+
+        <!-- Studio Controls & Nav -->
+        <nav class="masthead-nav" aria-label="Studio Navigation">
+          <a href="#sessions" class="nav-link">Sessions</a>
+          <a href="#manifesto" class="nav-link">The Studio</a>
+          <a href="#soundtrack" class="nav-link">Soundtrack</a>
+          
+          <!-- Splatter Paint Brush Toggle -->
+          <button type="button" id="splatter-toggle-btn" class="studio-nav-btn active" title="Click anywhere to splatter paint on canvas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-svg" aria-hidden="true">
+              <path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"/>
+              <path d="M9 8c-2 3-4 3.5-7 4l8 8c.5-3 1-5 4-7"/>
+            </svg>
+            <span class="nav-btn-text">Paint Brush</span>
+          </button>
+
+          <!-- Studio Ambience Button -->
+          <button type="button" id="ambience-modal-trigger" class="studio-nav-btn" aria-label="Open Studio Ambience Mixer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-svg" aria-hidden="true">
+              <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/>
+              <path d="M16 14v6m-4-4v6m-4-2v6"/>
+            </svg>
+            <span class="nav-btn-text">Ambience</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- SECTION 1: THE ARTIST'S TURNTABLE & STUDIO CONSOLE (Hero Object) -->
+    <main class="player-stage" id="studio-deck">
+      <div class="player-stage-inner">
+
+        <!-- Browser Autoplay Banner (Only visible if browser blocked autoplay) -->
+        <div id="unmute-notice" class="unmute-notice hidden">
+          <p>The studio record player is ready. Click below to begin the audio stream.</p>
+          <button type="button" id="unmute-start-btn" class="unmute-action">Start Studio Audio</button>
+        </div>
+
+        <!-- The Studio Turntable Console -->
+        <section class="turntable-console" aria-label="Artist Turntable and Palette Console">
+          
+          <!-- Top Console Plate: Atelier Info & Session Pill -->
+          <div class="console-top-plate">
+            <div class="plate-brand">
+              <span class="plate-title">CHITRAM ATELIER TURNTABLE</span>
+              <span class="plate-sub">Model 24 • Handcrafted Walnut &amp; Brass</span>
+            </div>
+
+            <!-- Current Session Tag -->
+            <div class="session-status-badge">
+              <span class="session-dot" id="session-dot"></span>
+              <span class="session-name" id="deck-session-name">Late Night Session</span>
+            </div>
+          </div>
+
+          <!-- Main Console Body: Vinyl Deck & Palette Metadata -->
+          <div class="console-body">
+            
+            <!-- Vinyl Turntable Unit -->
+            <div class="turntable-unit">
+              <!-- Turntable Platter & Disc -->
+              <div class="turntable-platter">
+                <div class="vinyl-record" id="vinyl-record">
+                  <div class="vinyl-groove g1"></div>
+                  <div class="vinyl-groove g2"></div>
+                  <div class="vinyl-groove g3"></div>
+                  <div class="record-label-center">
+                    <span class="record-label-title">चित्रम्</span>
+                    <span class="record-label-sub">33 RPM</span>
+                  </div>
+                </div>
+
+                <!-- Tonearm Mechanism -->
+                <div class="turntable-tonearm" id="turntable-tonearm">
+                  <div class="tonearm-pivot"></div>
+                  <div class="tonearm-arm"></div>
+                  <div class="tonearm-cartridge"></div>
+                </div>
+              </div>
+
+              <!-- Artist Palette Pigment Swatches for the Current Mood -->
+              <div class="palette-swatches-strip" id="palette-swatches-strip" title="Palette colors active for canvas brushstrokes">
+                <!-- Filled dynamically by app.js -->
+              </div>
+            </div>
+
+            <!-- Now Playing Linen Sheet -->
+            <div class="track-linen-card">
+              <div class="linen-header">
+                <span class="linen-tag">STUDIO ROTATION</span>
+                <span class="linen-mood-cue" id="deck-mood-cue">3 AM • Smudged colors on skin, warm chai, quiet melodies</span>
+              </div>
+
+              <div class="linen-track-meta">
+                <h1 class="linen-track-title" id="deck-track-title">cold/mess</h1>
+                <div class="linen-track-details">
+                  <span class="track-artist" id="deck-track-artist">Prateek Kuhad</span>
+                  <span class="meta-sep">•</span>
+                  <span class="track-album" id="deck-track-album">cold/mess EP (2018)</span>
+                </div>
+                <p class="track-lyrical-blurb" id="deck-track-blurb">
+                  The modern anthem of late-night longing. Written on an acoustic piano with lines that feel like whispers exchanged in a quiet art loft at 3 AM.
+                </p>
+              </div>
+
+              <!-- Track Progress Bar -->
+              <div class="track-scrub-container" id="track-scrub-container" title="Click to seek within track">
+                <div class="scrub-rail">
+                  <div class="scrub-fill" id="track-scrub-fill"></div>
+                </div>
+                <div class="scrub-time-row">
+                  <span class="time-elapsed" id="deck-time-current">0:00</span>
+                  <span class="time-duration" id="deck-time-duration">0:00</span>
+                </div>
+              </div>
+
+              <!-- External Links & Direct YouTube Link -->
+              <div class="linen-footer">
+                <a id="deck-yt-out" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="studio-link-btn">
+                  Watch Recording on YouTube ↗
+                </a>
+                <button type="button" id="clear-splatter-btn" class="clear-paint-action" title="Clear watercolor splatters on canvas">
+                  Clear Canvas Splatters
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Console Mechanical Keypad (Solid Wood & Brass Buttons) -->
+          <div class="console-keypad">
+            <button type="button" id="deck-prev-btn" class="studio-key" aria-label="Previous Track" title="Previous Track (Left Arrow)">
+              <svg viewBox="0 0 24 24" class="key-svg" aria-hidden="true">
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+              </svg>
+              <span class="key-label">PREV</span>
+            </button>
+
+            <button type="button" id="deck-play-btn" class="studio-key play-btn active-key" aria-label="Play or Pause" title="Play / Pause (Spacebar)">
+              <svg id="deck-play-icon" viewBox="0 0 24 24" class="key-svg play" aria-hidden="true">
+                <polygon points="8,5 19,12 8,19" />
+              </svg>
+              <svg id="deck-pause-icon" viewBox="0 0 24 24" class="key-svg pause hidden" aria-hidden="true">
+                <rect x="6" y="5" width="4" height="14" />
+                <rect x="14" y="5" width="4" height="14" />
+              </svg>
+              <span class="key-label" id="play-key-label">PLAY</span>
+            </button>
+
+            <button type="button" id="deck-next-btn" class="studio-key" aria-label="Next Track" title="Next Track (Right Arrow)">
+              <svg viewBox="0 0 24 24" class="key-svg" aria-hidden="true">
+                <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/>
+              </svg>
+              <span class="key-label">NEXT</span>
+            </button>
+
+            <button type="button" id="deck-shuffle-btn" class="studio-key toggled" aria-label="Toggle Shuffle" title="Shuffle Studio Playlist">
+              <svg viewBox="0 0 24 24" class="key-svg" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+              </svg>
+              <span class="key-label">SHUFFLE</span>
+            </button>
+
+            <!-- Volume Control -->
+            <div class="console-volume-block">
+              <span class="volume-title">STUDIO VOLUME</span>
+              <div class="volume-slider-row">
+                <button type="button" id="deck-mute-btn" class="mute-action-btn" aria-label="Toggle Mute (M)">
+                  <svg id="deck-vol-icon-high" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mute-svg" aria-hidden="true">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg>
+                  <svg id="deck-vol-icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mute-svg hidden" aria-hidden="true">
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  </svg>
+                </button>
+                <input type="range" id="deck-vol-slider" min="0" max="100" value="85" class="console-volume-slider" aria-label="Master Volume">
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+    <!-- SECTION 2: THE STUDIO ESSAY (Two Brushes, One Canvas) -->
+    <section class="editorial-section" id="manifesto">
+      <div class="editorial-container">
+        
+        <div class="section-lead">
+          <h2 class="editorial-heading-hi">दो रंग, एक कैनवास</h2>
+          <p class="editorial-sub-heading">Two souls, one easel, every hour of the creative day</p>
+        </div>
+
+        <div class="editorial-columns">
+          <div class="column-text">
+            <p>Every artist knows that moment when the world outside falls silent. The studio lamp hums softly in the corner, paint tubes lie scattered across the teak table, and two brushes move across linen canvas without needing a single word to be spoken.</p>
+            <p><em>चित्रम् (Chitram)</em> is built for that creative sanctuary. It is a live station designed to companion drawing artists, painters, and illustrators through the natural rhythm of creative hours. From first light sketches through midnight oil confessions, the music and mood change with the actual time of day.</p>
+          </div>
+          <div class="column-text">
+            <p>The soundtrack is curated from acoustic indie hymns, timeless golden-era playback, gentle classical ragas, and soulful poetry — records crafted for focus, companionship, and authentic artistic expression.</p>
+            <p>Everything streams directly through YouTube's embedded architecture, ensuring original artists and composers are credited and supported. Every song links directly to its official recording.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 3: THE SEVEN STUDIO SESSIONS -->
+    <section class="sessions-section" id="sessions">
+      <div class="editorial-container">
+        
+        <div class="section-lead">
+          <h2 class="editorial-heading-hi">सात पहर • The Seven Sessions</h2>
+          <p class="editorial-sub-heading">Light, palette, and acoustic focus curated by the hour</p>
+        </div>
+
+        <div class="sessions-grid" id="sessions-grid">
+          <!-- Populated dynamically via app.js -->
+        </div>
+
+        <!-- Clock Resync Button -->
+        <div class="session-resync-dock">
+          <button type="button" id="clock-resync-btn" class="resync-button hidden">
+            <span class="resync-dot" aria-hidden="true">●</span>
+            <span>Return to Current Hour (<span id="resync-clock-readout">--:--</span>)</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: THE STUDIO SOUNDTRACK ARCHIVE -->
+    <section class="soundtrack-section" id="soundtrack">
+      <div class="editorial-container">
+
+        <div class="section-lead">
+          <h2 class="editorial-heading-hi">गीतों की डायरी</h2>
+          <p class="editorial-sub-heading">A curated ledger of music for drawing, painting, and thinking</p>
+        </div>
+
+        <!-- Session Filter Tabs -->
+        <div class="soundtrack-tabs" id="soundtrack-tabs" role="tablist" aria-label="Filter Soundtrack by Session">
+          <!-- Filled by app.js -->
+        </div>
+
+        <!-- Track Cards Ledger -->
+        <div class="soundtrack-ledger" id="soundtrack-ledger">
+          <!-- Filled by app.js -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5: FOOTER -->
+    <footer class="site-footer">
+      <div class="editorial-container footer-inner">
+        <div class="footer-left">
+          <div class="footer-stamp-group">
+            <span class="footer-devanagari">चित्रम् स्टूडियो</span>
+            <span class="footer-english">The Atelier • Music for Visual Artists</span>
+          </div>
+          <p class="footer-note">Handcrafted for painters, sketchers, and lovers of soulful melodies. Audio streamed via YouTube’s official player; all copyrights belong to respective composers, poets, and performers.</p>
+          <p class="footer-time-signoff">Synced live to Indian Standard Time (UTC+05:30).</p>
+        </div>
+
+        <div class="footer-right">
+          <div class="footer-nav-block">
+            <span class="footer-nav-heading">Studio Sessions</span>
+            <ul class="footer-links-list">
+              <li><button type="button" class="footer-jump-btn" data-session="late-night">Late Night (12 AM – 5 AM)</button></li>
+              <li><button type="button" class="footer-jump-btn" data-session="dawn">Dawn Light (5 AM – 7 AM)</button></li>
+              <li><button type="button" class="footer-jump-btn" data-session="morning">Morning Sketch (7 AM – 12 PM)</button></li>
+              <li><button type="button" class="footer-jump-btn" data-session="afternoon">Afternoon Acrylics (12 PM – 4 PM)</button></li>
+              <li><button type="button" class="footer-jump-btn" data-session="golden-hour">Golden Hour (4 PM – 7 PM)</button></li>
+              <li><button type="button" class="footer-jump-btn" data-session="dusk">Dusk &amp; Rain (7 PM – 9 PM)</button></li>
+              <li><button type="button" class="footer-jump-btn" data-session="night">Starry Night (9 PM – 12 AM)</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- STUDIO AMBIENCE MODAL PANEL (Web Audio Synthesis) -->
+  <aside id="ambience-modal" class="ambience-modal hidden" aria-label="Studio Sound Ambience">
+    <div class="ambience-card">
+      <div class="ambience-card-header">
+        <div>
+          <h3 class="ambience-card-title">माहौल • Studio Ambience</h3>
+          <p class="ambience-card-sub">Synthesized offline acoustic textures to mix over your music</p>
+        </div>
+        <button type="button" id="ambience-modal-close" class="modal-close" aria-label="Close Ambience Panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="close-svg" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="ambience-channels">
+        <!-- Rain on Loft Window -->
+        <div class="ambience-channel">
+          <div class="channel-text">
+            <span class="channel-title">Rain on Loft Window</span>
+            <span class="channel-desc">Gentle raindrops trickling down the studio glass</span>
+          </div>
+          <div class="channel-control">
+            <input type="range" id="rain-range" min="0" max="100" value="35" class="sound-range" aria-label="Rain Sound Volume">
+            <span class="range-num" id="rain-num">35%</span>
+          </div>
+        </div>
+
+        <!-- Vinyl Turntable Needle Crackle -->
+        <div class="ambience-channel">
+          <div class="channel-text">
+            <span class="channel-title">Turntable Vinyl Crackle</span>
+            <span class="channel-desc">Warm 33 RPM needle pops and dust hiss</span>
+          </div>
+          <div class="channel-control">
+            <input type="range" id="vinyl-range" min="0" max="100" value="30" class="sound-range" aria-label="Vinyl Crackle Volume">
+            <span class="range-num" id="vinyl-num">30%</span>
+          </div>
+        </div>
+
+        <!-- Loft Fireplace & Night Hum -->
+        <div class="ambience-channel">
+          <div class="channel-text">
+            <span class="channel-title">Warm Loft Embers &amp; Air</span>
+            <span class="channel-desc">Soft room resonance and nighttime calm</span>
+          </div>
+          <div class="channel-control">
+            <input type="range" id="hum-range" min="0" max="100" value="25" class="sound-range" aria-label="Night Hum Volume">
+            <span class="range-num" id="hum-num">25%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ambience-footer">
+        <button type="button" id="ambience-master-btn" class="solid-btn">Disable Ambience</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="modal-dimmer" class="modal-dimmer hidden" aria-hidden="true"></div>
+
+  <!-- JavaScript Application -->
+  <script src="app.js"></script>
+</body>
+</html>
