@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "चित्रम् • CHITRAM — The Artist’s Studio Radio",
   "scripts": {
+    "build": "echo 'Static site ready'",
     "start": "node scripts/local-server.js",
     "dev": "node scripts/local-server.js"
   },
