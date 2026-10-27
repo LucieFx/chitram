@@ -22,11 +22,13 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
+const ROOT_DIR = path.join(__dirname, '..');
+
 const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
   if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
   
-  const filePath = path.join(__dirname, decodeURIComponent(reqPath));
+  const filePath = path.join(ROOT_DIR, decodeURIComponent(reqPath));
   
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {

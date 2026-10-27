@@ -1,13 +1,17 @@
 {
-  "name": "song-website",
+  "name": "chitram",
   "version": "1.0.0",
-  "description": "Chitram Studio Website",
-  "main": "server.js",
+  "description": "चित्रम् • CHITRAM — The Artist’s Studio Radio",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node scripts/local-server.js",
+    "dev": "node scripts/local-server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "chitram",
+    "radio",
+    "music",
+    "art-studio"
+  ],
+  "author": "LucieFx",
+  "license": "MIT"
 }
