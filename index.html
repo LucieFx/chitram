@@ -40,7 +40,7 @@
 </head>
 <body>
   <!-- Persistent Native HTML5 Studio Audio Player for Background & Lock Screen Playback -->
-  <audio id="studio-audio" preload="auto" playsinline loop></audio>
+  <audio id="studio-audio" preload="auto" playsinline></audio>
 
   <!-- Hidden YouTube Player Container (Companion Video Reference) -->
   <div id="yt-player-slot" aria-hidden="true"></div>
@@ -366,6 +366,9 @@
   <div id="resync-clock-readout" style="display:none;"></div>
   <div id="soundtrack-tabs" style="display:none;"></div>
   <div id="soundtrack-ledger" style="display:none;"></div>
+
+  <!-- Official YouTube Iframe API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 
   <!-- Application Script -->
   <script src="app.js"></script>

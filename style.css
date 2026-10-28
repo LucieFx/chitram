@@ -83,10 +83,12 @@ body {
 
 /* Background YouTube companion slot */
 #yt-player-slot, iframe#yt-player-slot {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0.001;
+  position: fixed;
+  bottom: -220px;
+  right: -220px;
+  width: 200px;
+  height: 200px;
+  opacity: 0.01;
   pointer-events: none;
   z-index: -10;
 }
