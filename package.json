@@ -1,15 +1,15 @@
 {
-  "name": "chitram",
+  "name": "chittram",
   "version": "1.0.0",
   "private": true,
-  "description": "चित्रम् • CHITRAM — The Artist’s Studio Radio",
+  "description": "चित्रम् • CHITTRAM — The Artist’s Studio Radio",
   "scripts": {
     "build": "echo 'Static site ready'",
     "start": "node scripts/local-server.js",
     "dev": "node scripts/local-server.js"
   },
   "keywords": [
-    "chitram",
+    "chittram",
     "radio",
     "music",
     "art-studio"

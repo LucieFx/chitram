@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>चित्रम् • CHITRAM — The Artist’s Studio Radio</title>
+  <title>चित्रम् • CHITTRAM — The Artist’s Studio Radio</title>
   <meta name="description" content="An intimate studio radio for painters, illustrators, and sketch artists. The light, the mood, and the melodies flow with every hour of the creative day.">
   <meta name="theme-color" content="#f6f1ea">
   <meta name="color-scheme" content="light">
 
   <!-- OpenGraph -->
-  <meta property="og:title" content="चित्रम् • CHITRAM — Music for Drawing & Painting">
+  <meta property="og:title" content="चित्रम् • CHITTRAM — Music for Drawing & Painting">
   <meta property="og:description" content="Two brushes, one canvas, every hour of the day. Curated acoustic and indie melodies for painters and sketch artists.">
   <meta property="og:type" content="website">
 
@@ -30,7 +30,7 @@
   {
     "@context": "https://schema.org",
     "@type": "RadioStation",
-    "name": "Chitram Artist Radio",
+    "name": "Chittram Artist Radio",
     "alternateName": "चित्रम्",
     "description": "An intimate studio radio station curating acoustic, indie, and soulful melodies for drawing artists and painters.",
     "genre": ["Art Studio", "Indie Hindi", "Acoustic", "Painting Music", "Creative Lo-Fi"],
@@ -55,7 +55,7 @@
       <div class="masthead-inner">
         
         <!-- Studio Brand Logo -->
-        <a href="#studio-deck" class="brand-link" aria-label="Chitram Studio Home">
+        <a href="#studio-deck" class="brand-link" aria-label="Chittram Studio Home">
           <span class="brand-hindi">चित्रम्</span>
           <span class="brand-tagline">The Artist’s Studio</span>
         </a>
@@ -89,7 +89,7 @@
     <!-- Browser Autoplay Banner (Only visible if browser blocked initial autoplay) -->
     <div id="unmute-notice" class="unmute-notice hidden">
       <div class="unmute-content">
-        <span>The studio easel player is ready. Tap to start the continuous audio stream.</span>
+        <span>The Chittram studio easel player is ready. Tap to start the continuous audio stream.</span>
         <button type="button" id="unmute-start-btn" class="unmute-action">Start Audio Stream</button>
       </div>
     </div>
@@ -162,20 +162,23 @@
 
         </div>
 
-        <!-- RIGHT COLUMN: Framed Canvas on Easel Artwork -->
+        <!-- RIGHT COLUMN: Framed Canvas on Easel Artwork (Rotates every 1 minute) -->
         <div class="player-right-col">
           <div class="easel-showcase-frame" id="easel-showcase-frame">
             
-            <!-- Gallery Matted Painting Frame -->
-            <div class="easel-canvas-wrapper">
-              <img id="easel-image" src="assets/scenes/minimal-canvas.png" alt="Minimalist geometric composition in terracotta, indigo and warm ochre on linen" class="easel-painting-img" />
+            <!-- Gallery Matted Painting Frame with Soft Drop Shadow -->
+            <div class="easel-canvas-wrapper" id="easel-canvas-wrapper" title="Click to view next artwork in studio collection">
+              <img id="easel-image" src="assets/artworks/IMG_9812.svg" alt="Chittram atelier study in rich plum, wine and warm linen tones" class="easel-painting-img" />
             </div>
 
-            <!-- Artwork Caption Under Easel -->
+            <!-- Artwork Caption Under Easel with 1-Min Rotation Slides -->
             <div class="easel-caption">
-              <span class="caption-label">On the easel:</span>
-              <span class="caption-title" id="easel-caption-title">रूप विन्यास</span>,
-              <span class="caption-medium" id="easel-caption-medium">oil on linen</span>
+              <div class="easel-caption-text">
+                <span class="caption-label">On the easel:</span>
+                <span class="caption-title" id="easel-caption-title">चित्रांगण • Chitrangana</span>,
+                <span class="caption-medium" id="easel-caption-medium">oil on linen • 2026</span>
+              </div>
+              <div class="easel-dots" id="easel-dots" role="tablist" aria-label="Atelier artwork collection slides"></div>
             </div>
 
           </div>
@@ -274,7 +277,7 @@
       <div class="stage-container footer-content-row">
         <!-- Atelier Brand Signature -->
         <div class="footer-left-col">
-          <span class="footer-logo">चित्रम् • CHITRAM</span>
+          <span class="footer-logo">चित्रम् • CHITTRAM</span>
           <span class="footer-sub">The Atelier • Music for Visual Artists</span>
         </div>
 
@@ -290,7 +293,7 @@
 
           <span class="footer-dot-separator" aria-hidden="true">·</span>
 
-          <a href="https://www.instagram.com/chitraam_artt_?rpxt=ZjllNjZ4a3BrMXVv" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Follow Chitram on Instagram (@chitraam_artt_)">
+          <a href="https://www.instagram.com/chitraam_artt_?rpxt=ZjllNjZ4a3BrMXVv" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Follow Chittram on Instagram (@chitraam_artt_)">
             <svg viewBox="0 0 24 24" class="footer-insta-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
               <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>

@@ -1,5 +1,5 @@
 /**
- * चित्रम् • CHITRAM
+ * चित्रम् • CHITTRAM
  * The Artist's Studio Radio — Music for Drawing, Painting & Sketching
  * Editorial Broadsheet & Easel Showcase
  * 385 Tracks Curated Across 7 Sessions (~55 per Hour/Pahar) — Non-Stop, Non-Repeating Smart Playback
@@ -4020,26 +4020,36 @@ SESSIONS.forEach(sess => {
 // ==========================================================================
 // 2. CREATIVE ARTWORK & BILINGUAL QUOTES DATABASE
 // ==========================================================================
-const ARTWORKS = {
-  minimal: {
-    src: 'assets/scenes/minimal-canvas.png',
-    title: 'रूप विन्यास',
-    medium: 'oil on linen',
-    alt: 'Minimalist geometric composition in terracotta, indigo and warm ochre on linen canvas'
+const ARTWORKS = [
+  {
+    id: 'chittram-1',
+    src: 'assets/artworks/IMG_9812.svg',
+    title: 'चित्रांगण • Chitrangana',
+    medium: 'oil on linen • 2026',
+    alt: 'Chittram atelier study in rich plum, wine and warm linen tones'
   },
-  beach: {
-    src: 'assets/scenes/minimal-canvas.png',
-    title: 'रूप विन्यास',
-    medium: 'oil on linen',
-    alt: 'Minimalist geometric composition in terracotta, indigo and warm ochre on linen canvas'
+  {
+    id: 'chittram-2',
+    src: 'assets/artworks/IMG_6074.JPG.svg',
+    title: 'वन राग • Vana Raga',
+    medium: 'oil on canvas • 2026',
+    alt: 'Chittram landscape study in olive greens and earthy ochres'
   },
-  mountain: {
-    src: 'assets/scenes/minimal-canvas.png',
-    title: 'रूप विन्यास',
-    medium: 'oil on linen',
-    alt: 'Minimalist geometric composition in terracotta, indigo and warm ochre on linen canvas'
+  {
+    id: 'chittram-3',
+    src: 'assets/artworks/IMG_6077.JPG.svg',
+    title: 'रागिनी भैरवी • Bhairavi',
+    medium: 'mixed media on linen • 2026',
+    alt: 'Chittram expressive study in deep crimson, bistre and earthen tones'
+  },
+  {
+    id: 'chittram-4',
+    src: 'assets/artworks/IMG_6081.JPG.svg',
+    title: 'रेखा संवाद • Rekha Samvad',
+    medium: 'ink & charcoal on parchment • 2026',
+    alt: 'Chittram fine ink and charcoal monochrome sketch on textured paper'
   }
-};
+];
 
 const QUOTES = [
   {
@@ -4082,7 +4092,7 @@ const QUOTES = [
     hi: '“कैनवास पर रखा हर एक रंग दिल की किसी अनकही बात का जवाब है।”',
     en: '“Every stroke of pigment placed upon linen is an answer to an unspoken feeling.”',
     author: 'चित्रकार के विचार • Painter’s Musings',
-    role: 'Chitram Atelier'
+    role: 'Chittram Atelier'
   }
 ];
 
@@ -4114,8 +4124,9 @@ const state = {
   userPaused: false,
   isAudioUnlocked: false,
 
-  // Artwork & Quotes
-  currentArtworkKey: 'minimal',
+  // Artwork Showcase & 1-Minute Rotation Engine
+  currentArtworkIndex: 0,
+  artworkTimer: null,
   currentQuoteIndex: 0,
   progressTimer: null
 };
@@ -4160,11 +4171,12 @@ const el = {
   deckTimeDuration: document.getElementById('deck-time-duration'),
 
   // Hero Right Column (Easel Showcase)
+  easelShowcaseFrame: document.getElementById('easel-showcase-frame'),
+  easelCanvasWrapper: document.getElementById('easel-canvas-wrapper'),
   easelImage: document.getElementById('easel-image'),
   easelCaptionTitle: document.getElementById('easel-caption-title'),
   easelCaptionMedium: document.getElementById('easel-caption-medium'),
-  btnArtBeach: document.getElementById('btn-art-beach'),
-  btnArtMountain: document.getElementById('btn-art-mountain'),
+  easelDots: document.getElementById('easel-dots'),
 
   // Sessions Selector Bar
   deckSessionName: document.getElementById('deck-session-name'),
@@ -4551,8 +4563,7 @@ function updateMediaSession(track) {
   if (!('mediaSession' in navigator) || !track) return;
 
   const session = track.session || state.currentSession || findSessionForHour(getLiveKolkataHour());
-  const artKey = state.currentArtworkKey || 'beach';
-  const artData = ARTWORKS[artKey] || ARTWORKS.beach;
+  const artData = ARTWORKS[state.currentArtworkIndex] || ARTWORKS[0];
 
   let artworkUrl = '';
   try {
@@ -4565,11 +4576,11 @@ function updateMediaSession(track) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: track.title,
       artist: track.artist,
-      album: `${track.album || session.labelEn} • चित्रम् Studio Radio`,
+      album: `${track.album || session.labelEn} • चित्रम् Chittram Studio Radio`,
       artwork: [
-        { src: artworkUrl, sizes: '512x512', type: 'image/jpeg' },
-        { src: artworkUrl, sizes: '256x256', type: 'image/jpeg' },
-        { src: artworkUrl, sizes: '128x128', type: 'image/jpeg' }
+        { src: artworkUrl, sizes: '512x512', type: 'image/svg+xml' },
+        { src: artworkUrl, sizes: '256x256', type: 'image/svg+xml' },
+        { src: artworkUrl, sizes: '128x128', type: 'image/svg+xml' }
       ]
     });
     navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
@@ -4849,23 +4860,95 @@ function togglePlay() {
 }
 
 // ==========================================================================
-// 8. ARTWORK SWITCHER (Easel Showcase)
+// 8. ARTWORK ROTATION ENGINE (Gallery Showcase • 1-Minute Interval)
 // ==========================================================================
-function switchArtwork(key) {
-  const art = ARTWORKS[key];
+function preloadArtworks() {
+  ARTWORKS.forEach((art) => {
+    const img = new Image();
+    img.src = art.src;
+  });
+}
+
+function renderArtworkDots() {
+  if (!el.easelDots) return;
+  el.easelDots.innerHTML = '';
+  ARTWORKS.forEach((art, idx) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = `easel-dot ${idx === state.currentArtworkIndex ? 'active' : ''}`;
+    dot.setAttribute('aria-label', `View artwork ${idx + 1}: ${art.title}`);
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-selected', idx === state.currentArtworkIndex ? 'true' : 'false');
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchArtwork(idx, true);
+    });
+    el.easelDots.appendChild(dot);
+  });
+}
+
+function updateArtworkDots() {
+  if (!el.easelDots) return;
+  const dots = el.easelDots.querySelectorAll('.easel-dot');
+  dots.forEach((dot, idx) => {
+    const isActive = idx === state.currentArtworkIndex;
+    dot.classList.toggle('active', isActive);
+    dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+}
+
+function switchArtwork(index, resetTimer = true) {
+  if (index < 0 || index >= ARTWORKS.length) index = 0;
+  state.currentArtworkIndex = index;
+  const art = ARTWORKS[index];
   if (!art || !el.easelImage) return;
 
-  state.currentArtworkKey = key;
-  el.easelImage.src = art.src;
-  el.easelImage.alt = art.alt;
-  if (el.easelCaptionTitle) el.easelCaptionTitle.textContent = art.title;
-  if (el.easelCaptionMedium) el.easelCaptionMedium.textContent = art.medium;
+  el.easelImage.classList.add('fade-out');
 
-  if (el.btnArtBeach) el.btnArtBeach.classList.toggle('active', key === 'beach');
-  if (el.btnArtMountain) el.btnArtMountain.classList.toggle('active', key === 'mountain');
+  setTimeout(() => {
+    el.easelImage.src = art.src;
+    el.easelImage.alt = art.alt;
+    if (el.easelCaptionTitle) el.easelCaptionTitle.textContent = art.title;
+    if (el.easelCaptionMedium) el.easelCaptionMedium.textContent = art.medium;
+    updateArtworkDots();
+    updateMediaSession(state.currentPlayingTrack);
 
-  const currentTrack = state.currentPlayingTrack || state.playlist[state.currentTrackIndex];
-  if (currentTrack) updateMediaSession(currentTrack);
+    el.easelImage.onload = () => {
+      el.easelImage.classList.remove('fade-out');
+    };
+    setTimeout(() => {
+      el.easelImage.classList.remove('fade-out');
+    }, 120);
+  }, 220);
+
+  if (resetTimer) {
+    restartArtworkRotation();
+  }
+}
+
+function rotateArtwork() {
+  const nextIdx = (state.currentArtworkIndex + 1) % ARTWORKS.length;
+  switchArtwork(nextIdx, false);
+}
+
+function startArtworkRotation() {
+  stopArtworkRotation();
+  // Automatically rotates every 1 minute (60,000 ms)
+  state.artworkTimer = setInterval(() => {
+    rotateArtwork();
+  }, 60000);
+}
+
+function stopArtworkRotation() {
+  if (state.artworkTimer) {
+    clearInterval(state.artworkTimer);
+    state.artworkTimer = null;
+  }
+}
+
+function restartArtworkRotation() {
+  stopArtworkRotation();
+  startArtworkRotation();
 }
 
 // ==========================================================================
@@ -5059,9 +5142,11 @@ function setupDeckControls() {
     seekToTime(dur * ratio);
   });
 
-  // Artwork Switchers
-  el.btnArtBeach?.addEventListener('click', () => switchArtwork('beach'));
-  el.btnArtMountain?.addEventListener('click', () => switchArtwork('mountain'));
+  // Easel Showcase Click -> advance to next artwork & reset 1-min timer
+  el.easelCanvasWrapper?.addEventListener('click', () => {
+    rotateArtwork();
+    restartArtworkRotation();
+  });
 
   // Quotes Switcher
   el.nextQuoteBtn?.addEventListener('click', nextQuote);
@@ -5151,6 +5236,12 @@ function init() {
   initMediaSessionHandlers();
   renderQuoteDots();
   renderQuote(0);
+
+  // Easel Showcase: Preload & Start 1-Minute Rotation Loop
+  preloadArtworks();
+  renderArtworkDots();
+  switchArtwork(0, false);
+  startArtworkRotation();
 
   // Initial Session (Synced to IST)
   const liveSession = findSessionForHour(getLiveKolkataHour());

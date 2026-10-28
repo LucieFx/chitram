@@ -1,6 +1,6 @@
 # चित्रम् Studio Audio Assets
 
-चित्रम् (Chitram) includes 7 handcrafted, high-fidelity 44.1kHz stereo studio master MP3 tracks for the creative hours of the studio:
+चित्रम् (Chittram) includes 7 handcrafted, high-fidelity 44.1kHz stereo studio master MP3 tracks for the creative hours of the studio:
 
 - `session-late-night.mp3` — Late Night (12 AM – 5 AM IST)
 - `session-dawn.mp3` — Dawn Light (5 AM – 7 AM IST)

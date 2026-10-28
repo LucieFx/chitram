@@ -1,5 +1,5 @@
 /* ==========================================================================
-   चित्रम् • CHITRAM DESIGN SYSTEM
+   चित्रम् • CHITTRAM DESIGN SYSTEM
    The Artist's Studio Radio — Music for Drawing, Painting & Sketching
    Aesthetic: Warm Editorial Linen Paper, Bold Serif Typography, Gallery Easel
    ========================================================================== */
@@ -549,6 +549,9 @@ a {
   border-radius: 4px;
   box-shadow: 0 16px 38px -8px rgba(45, 34, 25, 0.12), 0 2px 6px rgba(45, 34, 25, 0.04);
   border: 1px solid rgba(24, 21, 26, 0.06);
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
 }
 
 .easel-painting-img {
@@ -558,11 +561,25 @@ a {
   object-position: center;
   border-radius: 2px;
   display: block;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.easel-painting-img.fade-out {
+  opacity: 0;
+  transform: scale(0.985);
 }
 
 /* Caption Under Easel */
 .easel-caption {
   margin-top: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.easel-caption-text {
   font-size: 0.82rem;
   color: var(--ink-faint);
   line-height: 1.4;
@@ -582,6 +599,35 @@ a {
 .caption-medium {
   color: var(--ink-faint);
   font-style: italic;
+}
+
+/* 1-Minute Rotation Gallery Dots */
+.easel-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.easel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: rgba(24, 21, 26, 0.20);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.easel-dot:hover {
+  background-color: var(--ink-muted);
+  transform: scale(1.2);
+}
+
+.easel-dot.active {
+  width: 18px;
+  border-radius: 4px;
+  background-color: var(--terracotta-rich);
 }
 
 /* -------------------------------------------------------------
@@ -1204,9 +1250,21 @@ a {
   }
 
   .easel-caption {
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     font-size: 0.76rem;
     margin-top: 0.45rem;
+    gap: 0.35rem;
+  }
+
+  .easel-caption-text {
+    text-align: center;
+    font-size: 0.76rem;
+  }
+
+  .easel-dots {
+    justify-content: center;
   }
 
   .player-left-col {

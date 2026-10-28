@@ -70,5 +70,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Chitram Studio Server running at http://localhost:${PORT}`);
+  console.log(`Chittram Studio Server running at http://localhost:${PORT}`);
 });
