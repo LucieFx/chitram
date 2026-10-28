@@ -770,21 +770,11 @@ function initMediaSessionHandlers() {
   };
 
   safeSet('play', () => {
-    state.userPaused = false;
-    if (state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-      state.ytPlayer.playVideo();
-      updatePlayState(true);
-      requestWakeLock();
-    }
+    startPlaybackWithSound();
   });
 
   safeSet('pause', () => {
-    state.userPaused = true;
-    if (state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
-      state.ytPlayer.pauseVideo();
-      updatePlayState(false);
-      releaseWakeLock();
-    }
+    pausePlayback();
   });
 
   safeSet('previoustrack', () => {
@@ -958,6 +948,10 @@ function loadTrack(autoPlay = true) {
           videoId: track.videoId,
           startSeconds: 0
         });
+        if (!state.isMuted) {
+          state.ytPlayer.unMute();
+          state.ytPlayer.setVolume(state.volume || 85);
+        }
         state.ytPlayer.playVideo();
         updatePlayState(true);
         requestWakeLock();
@@ -983,29 +977,56 @@ function playPrev(autoPlay = true) {
   loadTrack(autoPlay);
 }
 
-function togglePlay() {
+function startPlaybackWithSound() {
+  state.userPaused = false;
+  state.isMuted = false;
+  if (!state.volume || state.volume === 0) state.volume = 85;
+
   setupAudioSession();
   initAudioContext();
-  if (!state.isAudioUnlocked) unlockAudio();
-
-  if (state.isPlaying) {
-    state.userPaused = true;
-    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
-      state.ytPlayer.pauseVideo();
-    }
-    updatePlayState(false);
-    releaseWakeLock();
-  } else {
-    state.userPaused = false;
-    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.playVideo === 'function') {
-      state.ytPlayer.playVideo();
-    }
-    updatePlayState(true);
-    requestWakeLock();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
   }
+  if (!rainGain) setupAmbience();
+
+  initMediaSessionHandlers();
+  requestWakeLock();
+
+  if (state.ytPlayer && state.ytReady) {
+    try {
+      state.ytPlayer.unMute();
+      state.ytPlayer.setVolume(state.volume);
+      state.ytPlayer.playVideo();
+    } catch (e) {
+      console.warn('Playback error:', e);
+    }
+  }
+
+  el.unmuteNotice.classList.add('hidden');
+  updateMuteIcons();
+  updatePlayState(true);
 
   const track = state.playlist[state.currentTrackIndex];
   if (track) updateMediaSession(track);
+}
+
+function pausePlayback() {
+  state.userPaused = true;
+  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
+    try {
+      state.ytPlayer.pauseVideo();
+    } catch (e) {}
+  }
+  updatePlayState(false);
+  releaseWakeLock();
+}
+
+function togglePlay() {
+  if (state.isPlaying) {
+    pausePlayback();
+  } else {
+    startPlaybackWithSound();
+  }
 }
 
 // ==========================================================================
@@ -1340,8 +1361,8 @@ function renderSoundtrackTracks() {
 // ==========================================================================
 function setupDeckControls() {
   el.deckPlayBtn.addEventListener('click', togglePlay);
-  el.deckNextBtn.addEventListener('click', playNext);
-  el.deckPrevBtn.addEventListener('click', playPrev);
+  el.deckNextBtn.addEventListener('click', () => playNext(true));
+  el.deckPrevBtn.addEventListener('click', () => playPrev(true));
 
   el.deckShuffleBtn.addEventListener('click', () => {
     state.isShuffle = !state.isShuffle;
@@ -1434,35 +1455,32 @@ function setupDeckControls() {
 
   // Audio policy unlock for iOS / Android user gesture compliance
   function unlockAudio() {
-    if (state.isAudioUnlocked) return;
-    state.isAudioUnlocked = true;
-
     setupAudioSession();
     initAudioContext();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+    if (!rainGain) setupAmbience();
     initMediaSessionHandlers();
 
     if (state.ytPlayer && state.ytReady) {
       try {
         state.ytPlayer.unMute();
+        state.ytPlayer.setVolume(state.volume || 85);
         state.isMuted = false;
+        state.isAudioUnlocked = true;
         if (state.isPlaying) {
           state.ytPlayer.playVideo();
         }
+        updateMuteIcons();
       } catch (e) {}
     }
-
-    el.unmuteNotice.classList.add('hidden');
-    updateMuteIcons();
-
-    ['pointerdown', 'keydown', 'touchend', 'click'].forEach(evt => {
-      document.removeEventListener(evt, unlockAudio, { capture: true });
-    });
   }
 
   ['pointerdown', 'keydown', 'touchend', 'click'].forEach(evt => {
-    document.addEventListener(evt, unlockAudio, { capture: true });
+    document.addEventListener(evt, unlockAudio, { passive: true });
   });
-  el.unmuteStartBtn.addEventListener('click', unlockAudio);
+  el.unmuteStartBtn.addEventListener('click', startPlaybackWithSound);
 
   // Background & Lock Screen audio persistence & recovery
   document.addEventListener('visibilitychange', () => {

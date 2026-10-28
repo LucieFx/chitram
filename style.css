@@ -53,16 +53,28 @@ body {
   overflow-x: hidden;
 }
 
-/* Hidden YouTube Engine Container (Rendered to prevent mobile background throttling) */
-#yt-player-slot {
+/* Atelier Studio Stream Screen (Visible to guarantee unmuted mobile playback and prevent iOS WebKit throttling) */
+#yt-player-slot, iframe#yt-player-slot {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 200px;
-  height: 200px;
-  opacity: 0.001;
-  pointer-events: none;
-  z-index: -10;
+  bottom: 16px;
+  right: 16px;
+  width: 150px;
+  height: 84px;
+  border-radius: 8px;
+  border: 1px solid rgba(229, 169, 60, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  background: #000;
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  #yt-player-slot, iframe#yt-player-slot {
+    bottom: 12px;
+    right: 12px;
+    width: 128px;
+    height: 72px;
+  }
 }
 
 button {
