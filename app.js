@@ -1833,11 +1833,8 @@ function renderSoundtrackTable() {
         <span>${track.title}</span>
         ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
       </td>
-      <td class="col-artist table-track-artist">${track.artist} · ${track.album}</td>
+      <td class="col-artist table-track-artist">${track.artist}</td>
       <td class="col-time table-track-time">${track.duration || '4:00'}</td>
-      <td class="col-action">
-        <span class="table-play-pill">${isCurrent && state.isPlaying ? 'PLAYING' : 'PLAY'}</span>
-      </td>
     `;
 
     tr.addEventListener('click', () => {
@@ -1865,17 +1862,12 @@ function updateSoundtrackTableActiveRow() {
     tr.classList.toggle('active-row', isCurrent);
 
     const titleEl = tr.querySelector('.table-track-title');
-    const pillEl = tr.querySelector('.table-play-pill');
 
     if (titleEl) {
       titleEl.innerHTML = `
         <span>${track.title}</span>
         ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
       `;
-    }
-
-    if (pillEl) {
-      pillEl.textContent = isCurrent && state.isPlaying ? 'PLAYING' : 'PLAY';
     }
   });
 }

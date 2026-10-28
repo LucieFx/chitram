@@ -74,28 +74,13 @@
           <span class="live-session-name" id="masthead-session-title">Late Night</span>
         </div>
 
-        <!-- Studio Quick Nav & Master Volume -->
+        <!-- Studio Quick Nav -->
         <div class="masthead-actions">
           <nav class="masthead-nav" aria-label="Main Navigation">
             <a href="#sessions" class="nav-link">Sessions</a>
             <a href="#soundtrack" class="nav-link">Soundtrack</a>
             <a href="#quotes" class="nav-link">Quotes</a>
           </nav>
-
-          <!-- Master Volume Mini Control -->
-          <div class="masthead-volume-dock">
-            <button type="button" id="deck-mute-btn" class="masthead-mute-btn" aria-label="Toggle Mute (M)">
-              <svg id="deck-vol-icon-high" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mute-svg" aria-hidden="true">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-              </svg>
-              <svg id="deck-vol-icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mute-svg hidden" aria-hidden="true">
-                <line x1="1" y1="1" x2="23" y2="23" />
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              </svg>
-            </button>
-            <input type="range" id="deck-vol-slider" min="0" max="100" value="85" class="header-vol-slider" aria-label="Master Volume">
-          </div>
         </div>
 
       </div>
@@ -118,14 +103,6 @@
           
           <div class="studio-kicker-row">
             <span class="kicker-label">Now playing in the studio</span>
-            <div class="kicker-badges">
-              <span class="queue-status-badge" id="queue-status-badge">
-                <span class="badge-dot ochre"></span> 77 Songs • Always New
-              </span>
-              <span class="lock-screen-badge" id="audio-engine-badge" title="Lock screen playback active">
-                <span class="badge-dot"></span> Lock Screen Ready
-              </span>
-            </div>
           </div>
 
           <!-- Dynamic Song Title & Artist Details -->
@@ -170,21 +147,6 @@
                 <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/>
               </svg>
             </button>
-
-            <!-- Shuffle Button -->
-            <button type="button" id="deck-shuffle-btn" class="control-btn shuffle-btn toggled" aria-label="Toggle Shuffle" title="Shuffle Studio Playlist">
-              <svg viewBox="0 0 24 24" class="control-svg-outline" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
-              </svg>
-            </button>
-
-            <!-- YouTube Official Link -->
-            <a id="deck-yt-out" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="yt-companion-btn" title="Watch official recording on YouTube">
-              <span>YouTube</span>
-              <svg viewBox="0 0 24 24" class="link-arrow-svg" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M7 17L17 7M17 7H7M17 7V17"/>
-              </svg>
-            </a>
           </div>
 
           <!-- Progress Scrub Rail & Timers -->
@@ -207,22 +169,12 @@
             <!-- Gallery Matted Painting Frame -->
             <div class="easel-canvas-wrapper">
               <img id="easel-image" src="assets/scenes/artist-beach-easel.jpg" alt="Artist painting on easel at coastal beach" class="easel-painting-img" />
-              
-              <!-- Subtle Artwork View Switcher Overlay -->
-              <div class="easel-view-toggle-bar">
-                <button type="button" class="art-switch-btn active" data-artwork="beach" id="btn-art-beach">
-                  <span>समुद्र किनारा • Beach</span>
-                </button>
-                <button type="button" class="art-switch-btn" data-artwork="mountain" id="btn-art-mountain">
-                  <span>पर्वत शिखर • Mountain</span>
-                </button>
-              </div>
             </div>
 
             <!-- Artwork Caption Under Easel -->
             <div class="easel-caption">
               <span class="caption-label">On the easel:</span>
-              <span class="caption-title" id="easel-caption-title">लहरों का कैनवास (Ocean Horizon at Sunset)</span>,
+              <span class="caption-title" id="easel-caption-title">लहरों का कैनवास</span>,
               <span class="caption-medium" id="easel-caption-medium">oil on linen</span>
             </div>
 
@@ -231,6 +183,29 @@
 
       </div>
     </main>
+
+    <!-- SOUNDTRACK LEDGER: Minimalist Tracklist Table Matching Image 1 -->
+    <section class="soundtrack-table-section" id="soundtrack" aria-label="Studio Soundtrack">
+      <div class="stage-container">
+        
+        <div class="soundtrack-table-wrapper">
+          <table class="soundtrack-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-title">TITLE</th>
+                <th class="col-artist">ARTIST</th>
+                <th class="col-time">DURATION</th>
+              </tr>
+            </thead>
+            <tbody id="soundtrack-table-body">
+              <!-- Dynamically rendered rows by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
 
     <!-- SESSIONS SELECTOR BAR: Compact 7-Pahar Mood Switcher -->
     <section class="sessions-bar-section" id="sessions" aria-label="Studio Sessions">
@@ -244,47 +219,6 @@
         <div class="session-chips-scroll" id="session-chips-container">
           <!-- Populated dynamically via app.js -->
         </div>
-      </div>
-    </section>
-
-    <!-- SOUNDTRACK LEDGER: Compact, Minimalist Tracklist Table -->
-    <section class="soundtrack-table-section" id="soundtrack" aria-label="Studio Soundtrack">
-      <div class="stage-container">
-        
-        <div class="soundtrack-header-row">
-          <div class="soundtrack-title-group">
-            <span class="bar-title-hi">गीत संग्रह</span>
-            <span class="bar-title-en">Studio Soundtrack • 77 Songs</span>
-          </div>
-
-          <!-- Filter buttons: Current Session vs All 77 Songs -->
-          <div class="soundtrack-filter-group">
-            <button type="button" class="table-filter-btn active" id="filter-btn-session">
-              <span id="filter-session-label">Current Session (11 Songs)</span>
-            </button>
-            <button type="button" class="table-filter-btn" id="filter-btn-all">
-              <span>All 77 Songs (सभी गीत)</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="soundtrack-table-wrapper">
-          <table class="soundtrack-table">
-            <thead>
-              <tr>
-                <th class="col-num">#</th>
-                <th class="col-title">TITLE</th>
-                <th class="col-artist">ARTIST &amp; ALBUM</th>
-                <th class="col-time">DURATION</th>
-                <th class="col-action">ACTION</th>
-              </tr>
-            </thead>
-            <tbody id="soundtrack-table-body">
-              <!-- Dynamically rendered rows by app.js -->
-            </tbody>
-          </table>
-        </div>
-
       </div>
     </section>
 
@@ -341,12 +275,6 @@
         <div class="footer-left-col">
           <span class="footer-logo">चित्रम् • CHITRAM</span>
           <span class="footer-sub">The Atelier • Music for Visual Artists</span>
-        </div>
-        <div class="footer-center-col">
-          <p>Handcrafted for painters, sketchers, and lovers of soulful melodies. Continuous audio looped for deep focus.</p>
-        </div>
-        <div class="footer-right-col">
-          <span class="footer-clock-sync">Synced live to Indian Standard Time (UTC+05:30)</span>
         </div>
       </div>
     </footer>

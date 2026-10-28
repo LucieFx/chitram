@@ -241,7 +241,7 @@ a {
   font-weight: 700;
 }
 
-/* Masthead Actions & Volume */
+/* Masthead Actions */
 .masthead-actions {
   display: flex;
   align-items: center;
@@ -251,12 +251,12 @@ a {
 .masthead-nav {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .masthead-nav .nav-link {
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-secondary);
   transition: color 150ms ease;
   padding: 0.2rem 0;
@@ -264,59 +264,6 @@ a {
 
 .masthead-nav .nav-link:hover {
   color: var(--ink-primary);
-}
-
-.masthead-volume-dock {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-left: 0.8rem;
-  border-left: 1px solid var(--border-medium);
-}
-
-.masthead-mute-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  color: var(--ink-secondary);
-  border-radius: 4px;
-  transition: color 150ms ease, background-color 150ms ease;
-}
-
-.masthead-mute-btn:hover {
-  color: var(--ink-primary);
-  background-color: var(--paper-hover);
-}
-
-.mute-svg {
-  width: 18px;
-  height: 18px;
-}
-
-.header-vol-slider {
-  width: 70px;
-  height: 4px;
-  -webkit-appearance: none;
-  background: var(--border-medium);
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-}
-
-.header-vol-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: var(--ink-primary);
-  cursor: pointer;
-  transition: transform 120ms ease;
-}
-
-.header-vol-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
 }
 
 /* -------------------------------------------------------------
@@ -378,58 +325,14 @@ a {
 .studio-kicker-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .kicker-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ink-secondary);
-}
-
-.kicker-badges {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.queue-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--accent-rust);
-  background-color: var(--accent-rust-soft);
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-}
-
-.badge-dot.ochre {
-  background-color: var(--accent-rust);
-}
-
-.lock-screen-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--accent-emerald);
-  background-color: rgba(22, 101, 68, 0.12);
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-}
-
-.badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--accent-emerald);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  letter-spacing: 0.01em;
 }
 
 /* Track Title & Artist Block */
@@ -623,77 +526,48 @@ a {
 
 .easel-showcase-frame {
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
 }
 
 .easel-canvas-wrapper {
   position: relative;
   background-color: var(--paper-white);
-  padding: 0.85rem 0.85rem 1.15rem 0.85rem;
+  padding: 1.25rem 1.25rem 1.25rem 1.25rem;
   border-radius: 4px;
-  box-shadow: var(--shadow-easel);
-  border: 1px solid rgba(24, 21, 26, 0.08);
+  box-shadow: 0 16px 38px -8px rgba(45, 34, 25, 0.12), 0 2px 6px rgba(45, 34, 25, 0.04);
+  border: 1px solid rgba(24, 21, 26, 0.06);
 }
 
 .easel-painting-img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center 30%;
-  border-radius: 3px;
+  border-radius: 2px;
   display: block;
-}
-
-/* Artwork View Switcher Bar */
-.easel-view-toggle-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.85rem;
-  justify-content: center;
-}
-
-.art-switch-btn {
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
-  background-color: var(--paper-bg);
-  color: var(--ink-secondary);
-  border: 1px solid var(--border-medium);
-  transition: all 140ms ease;
-}
-
-.art-switch-btn:hover {
-  background-color: var(--paper-hover);
-  color: var(--ink-primary);
-}
-
-.art-switch-btn.active {
-  background-color: var(--ink-primary);
-  color: var(--paper-white);
-  border-color: var(--ink-primary);
 }
 
 /* Caption Under Easel */
 .easel-caption {
   margin-top: 0.85rem;
-  font-size: 0.86rem;
-  color: var(--ink-secondary);
-  line-height: 1.45;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  line-height: 1.4;
+  text-align: left;
 }
 
 .caption-label {
-  color: var(--ink-muted);
+  color: var(--ink-faint);
   font-style: normal;
 }
 
 .caption-title {
-  font-weight: 700;
-  color: var(--ink-primary);
+  font-weight: 600;
+  color: var(--ink-secondary);
 }
 
 .caption-medium {
-  color: var(--ink-muted);
+  color: var(--ink-faint);
   font-style: italic;
 }
 
@@ -794,7 +668,7 @@ a {
    7. SOUNDTRACK LEDGER (Minimalist Table Matching Image 1)
    ------------------------------------------------------------- */
 .soundtrack-table-section {
-  padding: 0.75rem 0 2.5rem 0;
+  padding: 1.25rem 0 2rem 0;
   overflow: hidden;
   max-width: 100%;
 }
@@ -803,57 +677,12 @@ a {
   display: block;
 }
 
-.soundtrack-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.85rem;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.soundtrack-title-group {
-  display: flex;
-  align-items: baseline;
-  gap: 0.65rem;
-}
-
-.soundtrack-filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.table-filter-btn {
-  font-size: 0.82rem;
-  font-weight: 600;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  background-color: var(--paper-card);
-  color: var(--ink-secondary);
-  border: 1px solid var(--border-medium);
-  transition: all 140ms ease;
-  cursor: pointer;
-}
-
-.table-filter-btn:hover {
-  background-color: var(--paper-hover);
-  color: var(--ink-primary);
-}
-
-.table-filter-btn.active {
-  background-color: var(--ink-primary);
-  color: var(--paper-white);
-  border-color: var(--ink-primary);
-  font-weight: 700;
-}
-
 .soundtrack-table-wrapper {
-  background-color: var(--paper-card);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
   overflow-x: auto;
-  box-shadow: var(--shadow-subtle);
+  box-shadow: none;
   width: 100%;
 }
 
@@ -861,97 +690,87 @@ a {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  min-width: 580px;
 }
 
 .soundtrack-table thead tr {
-  border-bottom: 1px solid var(--border-medium);
-  background-color: rgba(24, 21, 26, 0.03);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  background-color: transparent;
 }
 
 .soundtrack-table th {
-  padding: 0.85rem 1.25rem;
-  font-size: 0.78rem;
-  font-weight: 700;
+  padding: 0.85rem 0.6rem;
+  font-size: 0.74rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-muted);
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
 }
 
 .col-num {
-  width: 50px;
-  text-align: center;
+  width: 48px;
+  text-align: left;
+  padding-left: 0.25rem !important;
 }
 
 .col-title {
-  width: 38%;
+  width: 44%;
 }
 
 .col-artist {
-  width: 38%;
+  width: 40%;
 }
 
 .col-time {
   width: 80px;
   text-align: right;
-}
-
-.col-action {
-  width: 95px;
-  text-align: right;
-  padding-right: 1.5rem !important;
+  padding-right: 0.25rem !important;
 }
 
 .soundtrack-table tbody tr {
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid rgba(24, 21, 26, 0.08);
   cursor: pointer;
-  transition: background-color 140ms ease;
-}
-
-.soundtrack-table tbody tr:last-child {
-  border-bottom: none;
+  transition: background-color 120ms ease;
 }
 
 .soundtrack-table tbody tr:hover {
-  background-color: var(--paper-hover);
+  background-color: rgba(24, 21, 26, 0.025);
 }
 
 .soundtrack-table tbody tr.active-row {
-  background-color: rgba(184, 79, 44, 0.08);
+  background-color: transparent;
 }
 
 .soundtrack-table td {
-  padding: 0.95rem 1.25rem;
-  font-size: 0.94rem;
-  color: var(--ink-secondary);
-}
-
-.soundtrack-table tr.active-row td {
+  padding: 1rem 0.6rem;
+  font-size: 0.95rem;
   color: var(--ink-primary);
 }
 
 .track-index-num {
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--ink-muted);
-  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  text-align: left;
+  padding-left: 0.25rem !important;
 }
 
 .soundtrack-table tr.active-row .track-index-num {
   color: var(--accent-rust);
+  font-weight: 600;
 }
 
 .table-track-title {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-primary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.soundtrack-table tr.active-row .table-track-title {
+.soundtrack-table tr.active-row .table-track-title span {
   color: var(--accent-rust);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .active-sound-wave {
@@ -977,7 +796,7 @@ a {
 }
 
 .table-track-artist {
-  font-weight: 500;
+  font-weight: 400;
   color: var(--ink-secondary);
 }
 
@@ -986,31 +805,8 @@ a {
   color: var(--ink-muted);
   text-align: right;
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.table-play-pill {
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 0.25rem 0.65rem;
-  border-radius: 4px;
-  background-color: var(--paper-bg);
-  color: var(--ink-primary);
-  border: 1px solid var(--border-medium);
-  transition: all 120ms ease;
-  float: right;
-}
-
-.soundtrack-table tr:hover .table-play-pill {
-  background-color: var(--ink-primary);
-  color: var(--paper-white);
-  border-color: var(--ink-primary);
-}
-
-.soundtrack-table tr.active-row .table-play-pill {
-  background-color: var(--accent-rust);
-  color: var(--paper-white);
-  border-color: var(--accent-rust);
+  font-weight: 500;
+  padding-right: 0.25rem !important;
 }
 
 /* -------------------------------------------------------------
@@ -1160,8 +956,8 @@ a {
    ------------------------------------------------------------- */
 .site-compact-footer {
   border-top: 1px solid var(--border-light);
-  background-color: var(--paper-card);
-  padding: 2rem 0;
+  background-color: var(--paper-bg);
+  padding: 2.25rem 0;
   font-size: 0.85rem;
   color: var(--ink-muted);
 }
@@ -1169,34 +965,29 @@ a {
 .footer-content-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
+  justify-content: flex-start;
 }
 
 .footer-left-col {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .footer-logo {
+  font-family: var(--font-devanagari);
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--ink-primary);
 }
 
 .footer-sub {
-  color: var(--ink-secondary);
-}
-
-.footer-center-col {
-  max-width: 440px;
-  text-align: center;
-  line-height: 1.5;
-}
-
-.footer-right-col {
-  text-align: right;
-  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
 }
 
 /* -------------------------------------------------------------
