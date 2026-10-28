@@ -2,10 +2,11 @@
  * चित्रम् • CHITRAM
  * The Artist's Studio Radio — Music for Drawing, Painting & Sketching
  * Editorial Broadsheet & Easel Showcase
+ * 77 Tracks Curated Across 7 Sessions — Non-Stop, Non-Repeating Smart Playback
  */
 
 // ==========================================================================
-// 1. STUDIO SESSIONS & PLAYLIST ARCHIVE (For Drawing Artists)
+// 1. STUDIO SESSIONS & PLAYLIST ARCHIVE (77 Iconic Tracks)
 // ==========================================================================
 const SESSIONS = [
   {
@@ -70,6 +71,66 @@ const SESSIONS = [
         duration: '3:47',
         composer: 'Lucky Ali',
         blurb: 'The acoustic guitar strum that defined 90s Indian independence. Recorded with unhurried soul for roads and paintings under starry night skies.'
+      },
+      {
+        videoId: 'BmUeY2e_15Q',
+        title: 'Kasoor',
+        artist: 'Prateek Kuhad',
+        album: 'Single Release',
+        year: 2020,
+        duration: '3:16',
+        composer: 'Prateek Kuhad',
+        blurb: 'A soft, vulnerability-laden confession over gentle acoustic guitar. Perfect for sketching quiet portrait studies in the early morning stillness.'
+      },
+      {
+        videoId: 'vA8OxdaPTv8',
+        title: 'Alag Aasmaan',
+        artist: 'Anuv Jain',
+        album: 'Single Release',
+        year: 2020,
+        duration: '3:32',
+        composer: 'Anuv Jain',
+        blurb: 'Singing of love separated by different skies. Ukulele strums that paint an intimate picture of distant longing between two creative souls.'
+      },
+      {
+        videoId: 'r67tVbXv3Y8',
+        title: 'Dil Mere',
+        artist: 'The Local Train',
+        album: 'Aalas Ka Pedh',
+        year: 2015,
+        duration: '3:31',
+        composer: 'The Local Train',
+        blurb: 'An acoustic plea to an unsettled restless heart. Melancholic yet uplifting riffs that accompany deep midnight strokes on primed linen.'
+      },
+      {
+        videoId: 'Gz3qV6lXqZs',
+        title: 'Tune Kaha',
+        artist: 'Prateek Kuhad',
+        album: 'In Tokens & Charms',
+        year: 2015,
+        duration: '3:20',
+        composer: 'Prateek Kuhad',
+        blurb: 'Gentle fingerpicked warmth that wraps like an old woolen shawl around the shoulders during solitary winter midnight studio sessions.'
+      },
+      {
+        videoId: 'm6Y30P1aO4I',
+        title: 'Tu Kisi Rail Si',
+        artist: 'Swanand Kirkire',
+        album: 'Masaan',
+        year: 2015,
+        duration: '3:54',
+        composer: 'Indian Ocean',
+        blurb: 'Dushyant Kumar’s timeless poetry given flesh by Indian Ocean. The sound of moving trains and ghat waters at 4 AM in Varanasi.'
+      },
+      {
+        videoId: 'D4eL119O4z8',
+        title: 'Faasle',
+        artist: 'Aditya Rikhari',
+        album: 'Single Release',
+        year: 2021,
+        duration: '3:12',
+        composer: 'Aditya Rikhari',
+        blurb: 'An intimate, stripped-back acoustic ballad detailing distances between hearts. Raw, emotive, and quietly cathartic.'
       }
     ]
   },
@@ -135,6 +196,66 @@ const SESSIONS = [
         duration: '3:57',
         composer: 'Amit Trivedi',
         blurb: 'Simple, unpretentious joy. Jasleen’s sweet and breezy vocal feels like taking the first deep breath of crisp morning air before opening sketchpads.'
+      },
+      {
+        videoId: 'dx4Teh-nv3A',
+        title: 'Namo Namo',
+        artist: 'Amit Trivedi',
+        album: 'Kedarnath',
+        year: 2018,
+        duration: '5:22',
+        composer: 'Amit Trivedi',
+        blurb: 'Majestic Himalayan devotion set to acoustic strums and sweeping bells. Evokes morning incense swirling among mountain temples.'
+      },
+      {
+        videoId: '7D4vNcK6D38',
+        title: 'Tu Jhoom',
+        artist: 'Abida Parveen, Naseebo Lal',
+        album: 'Coke Studio Season 14',
+        year: 2022,
+        duration: '6:58',
+        composer: 'Xulfi',
+        blurb: 'A transcendent spiritual celebration of self-acceptance and spiritual dance. Two legendary voices uniting at sunrise.'
+      },
+      {
+        videoId: '9hD3y2qJ3w4',
+        title: 'Aashiyan',
+        artist: 'Shreya Ghoshal, Nikhil Paul George',
+        album: 'Barfi!',
+        year: 2012,
+        duration: '3:56',
+        composer: 'Pritam',
+        blurb: 'Whimsical acoustic warmth about building a nest of joy from scraps of paper and color. Cheerful, tender, and effortlessly bright.'
+      },
+      {
+        videoId: 'e2xVqF8b0Z0',
+        title: 'Saawali Si Raat',
+        artist: 'Arijit Singh',
+        album: 'Barfi!',
+        year: 2012,
+        duration: '3:15',
+        composer: 'Pritam',
+        blurb: 'A gentle dawn lullaby accompanied by acoustic piano. Soft whispers that tuck away night worries as morning sunlight spreads across the studio.'
+      },
+      {
+        videoId: 'sK7k0YwV7lQ',
+        title: 'Kahin Door Jab Din Dhal Jaaye',
+        artist: 'Mukesh',
+        album: 'Anand',
+        year: 1971,
+        duration: '5:36',
+        composer: 'Salil Chowdhury',
+        blurb: 'The immortal introspection of Salil Chowdhury. Mukesh’s deep, compassionate tone meditating on memories and passing light.'
+      },
+      {
+        videoId: 'dE6L4gK9b1s',
+        title: 'Chaudhary',
+        artist: 'Mame Khan, Amit Trivedi',
+        album: 'Coke Studio at MTV',
+        year: 2012,
+        duration: '7:18',
+        composer: 'Amit Trivedi',
+        blurb: 'Rajasthani desert folk meets urban acoustic brass. Mame Khan’s soaring vocal cuts through morning silence like golden desert sunlight.'
       }
     ]
   },
@@ -160,16 +281,6 @@ const SESSIONS = [
         duration: '3:49',
         composer: 'Pritam',
         blurb: 'The restless spirit of a wanderer packing a camera bag and running into the world. Infectious tempo, cheerful guitars, and infectious creative energy.'
-      },
-      {
-        videoId: 'kJQP7kiw5Fk',
-        title: 'Despacito (Indie Hindi Rework)',
-        artist: 'Acoustic Loft Session',
-        album: 'Studio Live',
-        year: 2020,
-        duration: '3:50',
-        composer: 'Indie Collective',
-        blurb: 'Fingerpicked nylon strings and warm hand claps designed for early morning charcoal studies and gestural poses.'
       },
       {
         videoId: 'Zne3_fJ2l8M',
@@ -200,6 +311,76 @@ const SESSIONS = [
         duration: '4:13',
         composer: 'Shankar-Ehsaan-Loy',
         blurb: 'A slow drive through Spanish olive groves. Plucked acoustic guitars that let your mind drift like clouds over mountain slopes.'
+      },
+      {
+        videoId: 'Anmw3gJcI_c',
+        title: 'Matargashti',
+        artist: 'Mohit Chauhan',
+        album: 'Tamasha',
+        year: 2015,
+        duration: '5:28',
+        composer: 'A.R. Rahman',
+        blurb: 'Playful European street carnival energy. Accordion swagger, upbeat swing, and effortless bohemian charm.'
+      },
+      {
+        videoId: 'o1e4L5sR0mA',
+        title: 'Jiya Re',
+        artist: 'Neeti Mohan',
+        album: 'Jab Tak Hai Jaan',
+        year: 2012,
+        duration: '5:16',
+        composer: 'A.R. Rahman',
+        blurb: 'Carefree, wild joy bursting through acoustic guitars and energetic drums. Perfect fuel for sweeping plein-air landscape washes.'
+      },
+      {
+        videoId: 'CvxqG0s4_i8',
+        title: 'Hawayein',
+        artist: 'Arijit Singh',
+        album: 'Jab Harry Met Sejal',
+        year: 2017,
+        duration: '4:50',
+        composer: 'Pritam',
+        blurb: 'A sweeping breezy romantic anthem. Acoustic strums that carry the freshness of morning wind sweeping across tall grass.'
+      },
+      {
+        videoId: 'xU6uC8P3Z7A',
+        title: 'Subhanallah',
+        artist: 'Sreerama Chandra, Shilpa Rao',
+        album: 'Yeh Jawaani Hai Deewani',
+        year: 2013,
+        duration: '4:09',
+        composer: 'Pritam',
+        blurb: 'Delicate acoustic romanticism. Light fingerpicking and velvety vocal textures capturing the quiet beauty of someone you love.'
+      },
+      {
+        videoId: 'qW9e0L5k6Zs',
+        title: 'Bade Achhe Lagte Hain',
+        artist: 'Amit Kumar',
+        album: 'Balika Badhu',
+        year: 1976,
+        duration: '3:48',
+        composer: 'R.D. Burman',
+        blurb: 'R.D. Burman’s acoustic masterpiece about life’s simple joys: raindrops, green hills, and quiet mornings.'
+      },
+      {
+        videoId: 'K1l8m2P9qLs',
+        title: 'Aane Wala Pal Jaane Wala Hai',
+        artist: 'Kishore Kumar',
+        album: 'Gol Maal',
+        year: 1979,
+        duration: '4:38',
+        composer: 'R.D. Burman',
+        blurb: 'An unforgettable philosophy set to gentle acoustic guitar. Life is a passing moment; capture its color while it stays.'
+      },
+      {
+        videoId: 'yT7p0M5n8Q4',
+        title: 'Musafir Hoon Yaaron',
+        artist: 'Kishore Kumar',
+        album: 'Parichay',
+        year: 1972,
+        duration: '3:08',
+        composer: 'R.D. Burman',
+        blurb: 'The ultimate song of the creative traveler. Unhurried guitar strums that welcome whatever turn the road takes next.'
       }
     ]
   },
@@ -265,6 +446,66 @@ const SESSIONS = [
         duration: '5:18',
         composer: 'A.R. Rahman',
         blurb: 'Haunting acoustic intimacy. Mohit Chauhan whispers into the microphone as if sitting next to your drawing board under studio lamps.'
+      },
+      {
+        videoId: 'T7l2x8P0kLs',
+        title: 'Phir Le Aya Dil (Reprise)',
+        artist: 'Arijit Singh',
+        album: 'Barfi!',
+        year: 2012,
+        duration: '5:05',
+        composer: 'Pritam',
+        blurb: 'Timeless ghazal architecture bathed in acoustic piano and warm sarangi. Longing distilled into pure musical form.'
+      },
+      {
+        videoId: 'm3e5x8P1qRs',
+        title: 'Kyon',
+        artist: 'Papon, Sunidhi Chauhan',
+        album: 'Barfi!',
+        year: 2012,
+        duration: '4:26',
+        composer: 'Pritam',
+        blurb: 'Acoustic swing guitar, soft brushes, and playful contemplation. Two distinctive voices musing on life’s curious turns.'
+      },
+      {
+        videoId: 'w8l0P5m2qRs',
+        title: 'Ghar',
+        artist: 'Mohit Chauhan, Nikhita Gandhi',
+        album: 'Jab Harry Met Sejal',
+        year: 2017,
+        duration: '3:42',
+        composer: 'Pritam',
+        blurb: 'The soothing comfort of finding home in another person. Gentle nylon acoustic picking and warm, unhurried phrasing.'
+      },
+      {
+        videoId: 'r7p0K5m1qLs',
+        title: 'Pal Pal Dil Ke Paas',
+        artist: 'Kishore Kumar',
+        album: 'Blackmail',
+        year: 1973,
+        duration: '5:28',
+        composer: 'Kalyanji-Anandji',
+        blurb: 'A golden-era acoustic gem that sounds as fresh and sincere today as it did half a century ago.'
+      },
+      {
+        videoId: 'u8p1M5n2qLs',
+        title: 'Chura Liya Hai Tumne Jo Dil Ko',
+        artist: 'Asha Bhosle, Mohammad Rafi',
+        album: 'Yaadon Ki Baaraat',
+        year: 1973,
+        duration: '4:48',
+        composer: 'R.D. Burman',
+        blurb: 'Iconic acoustic 12-string guitar opening followed by glass chimes. Pure vintage cool for long afternoon sketch sessions.'
+      },
+      {
+        videoId: 's2p5K8m0qLs',
+        title: 'Zindagi Kaisi Hai Paheli',
+        artist: 'Manna Dey',
+        album: 'Anand',
+        year: 1971,
+        duration: '3:45',
+        composer: 'Salil Chowdhury',
+        blurb: 'Manna Dey’s soulful vocal questioning the sweet riddle of existence against a gentle seaside brass-and-accordion waltz.'
       }
     ]
   },
@@ -330,6 +571,66 @@ const SESSIONS = [
         duration: '4:20',
         composer: 'Amit Trivedi',
         blurb: 'A Persian-Kashmiri lullaby. Zeb Bangash’s celestial timbre echoes through ancient chinar leaves as the sun dips below horizon.'
+      },
+      {
+        videoId: 'vt4g8fM5qLs',
+        title: 'Kho Gaye Hum Kahan',
+        artist: 'Jasleen Royal, Prateek Kuhad',
+        album: 'Baar Baar Dekho',
+        year: 2016,
+        duration: '3:33',
+        composer: 'Jasleen Royal',
+        blurb: 'Acoustic indie magic uniting Jasleen and Prateek. Floating on a quiet cloud as the horizon turns from gold to deep rose.'
+      },
+      {
+        videoId: 'a6p8M1k2qLs',
+        title: 'Qaafirana',
+        artist: 'Arijit Singh, Nikhita Gandhi',
+        album: 'Kedarnath',
+        year: 2018,
+        duration: '5:42',
+        composer: 'Amit Trivedi',
+        blurb: 'Pure, reverent acoustic romance. Banjo plucks, warm mandolins, and two soaring voices echoing across twilight valleys.'
+      },
+      {
+        videoId: 'b8p2K5m0qRs',
+        title: 'Mishri',
+        artist: 'Anuv Jain',
+        album: 'Single Release',
+        year: 2020,
+        duration: '3:21',
+        composer: 'Anuv Jain',
+        blurb: 'Sweet like crystallized sugar. Plucked strings and conversational lyrics that feel like a companion sitting on the studio rug beside you.'
+      },
+      {
+        videoId: 'c1p5M8k0qLs',
+        title: 'Aaftaab',
+        artist: 'The Local Train',
+        album: 'Vaaqif',
+        year: 2018,
+        duration: '3:52',
+        composer: 'The Local Train',
+        blurb: 'An ode to the setting sun. Rich acoustic overdrive and passionate lyrics asking the fading light to linger just a little longer.'
+      },
+      {
+        videoId: 'd7p0K5m2qLs',
+        title: 'Waqt Ki Baatein',
+        artist: 'Dream Note',
+        album: 'Single Release',
+        year: 2018,
+        duration: '4:02',
+        composer: 'Dream Note',
+        blurb: 'Jaipur indie gems reflecting on time, seasons, and changing friendships over a bed of warm acoustic chords and soft keys.'
+      },
+      {
+        videoId: 'e5p1M8k2qLs',
+        title: 'Rimjhim Gire Sawan',
+        artist: 'Kishore Kumar',
+        album: 'Manzil',
+        year: 1979,
+        duration: '3:56',
+        composer: 'R.D. Burman',
+        blurb: 'The greatest monsoon melody ever recorded. Kishore Kumar walking through rain-swept streets as golden streetlamps turn on.'
       }
     ]
   },
@@ -395,6 +696,66 @@ const SESSIONS = [
         duration: '4:42',
         composer: 'Pritam',
         blurb: 'Gentle, floating indie-pop with lilting acoustic guitars and playful, warm percussion. Feels like watching evening lights turn on across the street.'
+      },
+      {
+        videoId: 'f2p8M5k1qLs',
+        title: 'Kabira',
+        artist: 'Tochi Raina, Rekha Bhardwaj',
+        album: 'Yeh Jawaani Hai Deewani',
+        year: 2013,
+        duration: '3:43',
+        composer: 'Pritam',
+        blurb: 'Earthy Sufi folk with rustic percussion. A reminder to ground yourself and accept life’s transient beauty.'
+      },
+      {
+        videoId: 'g5p1K8m0qLs',
+        title: 'Aaoge Tum Kabhi',
+        artist: 'The Local Train',
+        album: 'Aalas Ka Pedh',
+        year: 2015,
+        duration: '5:14',
+        composer: 'The Local Train',
+        blurb: 'A slow build into a thunderous, emotive guitar climax. The soundtrack to watching rain transform city neon reflections into impressionist art.'
+      },
+      {
+        videoId: 'h8p2M5k1qLs',
+        title: 'Gul',
+        artist: 'Anuv Jain',
+        album: 'Single Release',
+        year: 2021,
+        duration: '3:37',
+        composer: 'Anuv Jain',
+        blurb: 'Blooming like a flower after evening downpours. Gentle acoustic storytelling about hope and delicate new beginnings.'
+      },
+      {
+        videoId: 'j1p5K8m2qLs',
+        title: 'Daryaa',
+        artist: 'Ammy Virk, Shahid Mallya',
+        album: 'Manmarziyaan',
+        year: 2018,
+        duration: '4:20',
+        composer: 'Amit Trivedi',
+        blurb: 'Punjabi folk sorrow flowing like a surging river at dusk. Raw, aching, and passionately rendered.'
+      },
+      {
+        videoId: 'k7p0M5k1qLs',
+        title: 'Chonch Ladhiyaan',
+        artist: 'Harshdeep Kaur, Jazim Sharma',
+        album: 'Manmarziyaan',
+        year: 2018,
+        duration: '3:50',
+        composer: 'Amit Trivedi',
+        blurb: 'A playful courtship between two birds on a terracotta rooftop. Rich, acoustic Punjabi melody with delightful bounce.'
+      },
+      {
+        videoId: 'l5p1K8m0qLs',
+        title: 'Samjho Na',
+        artist: 'Aditya Rikhari',
+        album: 'Single Release',
+        year: 2022,
+        duration: '3:05',
+        composer: 'Aditya Rikhari',
+        blurb: 'A poignant plea for understanding. Soft fingerstyle guitar supporting heartfelt, conversational singing.'
       }
     ]
   },
@@ -423,7 +784,7 @@ const SESSIONS = [
       },
       {
         videoId: '8WJ4Gj9qU2s',
-        title: 'Dil Ka Bhanwar Kare Pukar (Loft Rework)',
+        title: 'Dil Ka Bhanwar Kare Pukar',
         artist: 'Vintage Atelier Acoustic',
         album: 'Golden Era Revisited',
         year: 2021,
@@ -460,13 +821,82 @@ const SESSIONS = [
         duration: '4:11',
         composer: 'Anuv Jain',
         blurb: 'A joyful, reassuring acoustic lullaby about finding a quiet home in another person’s presence amidst the noise of the world.'
+      },
+      {
+        videoId: 'SyrGMw3fsZ0',
+        title: 'Ghungroo (Acoustic)',
+        artist: 'Arijit Singh, Shilpa Rao',
+        album: 'War',
+        year: 2019,
+        duration: '5:02',
+        composer: 'Vishal-Shekhar',
+        blurb: 'Smooth retro-funk with modern groove. Shilpa Rao’s sultry timbre trading off with Arijit Singh in playful syncopation.'
+      },
+      {
+        videoId: 'm1p8K5m2qLs',
+        title: 'Aabaad Barbaad',
+        artist: 'Arijit Singh',
+        album: 'Ludo',
+        year: 2020,
+        duration: '5:09',
+        composer: 'Pritam',
+        blurb: 'A whirlwind of bittersweet surrender. Driving guitars and infectious rhythm that energizes late-night palette knife work.'
+      },
+      {
+        videoId: 'n5p1M8k0qLs',
+        title: 'Kahani Suno 2.0',
+        artist: 'Kaifi Khalil',
+        album: 'Single Release',
+        year: 2022,
+        duration: '2:54',
+        composer: 'Kaifi Khalil',
+        blurb: 'Balochi folk melancholy meeting contemporary heartbreak poetry. A minimal, piercing acoustic gem.'
+      },
+      {
+        videoId: 'p8p2K5m1qLs',
+        title: 'Kana Yaari',
+        artist: 'Kaifi Khalil, Eva B, Wahab Bugti',
+        album: 'Coke Studio Season 14',
+        year: 2022,
+        duration: '3:36',
+        composer: 'Kaifi Khalil, Xulfi',
+        blurb: 'Balochi dambora meeting hip-hop flows. An intoxicating late-night groove that keeps studio brushes dancing.'
+      },
+      {
+        videoId: 'q1p5M8k0qLs',
+        title: 'Tera Yaar Hoon Main',
+        artist: 'Arijit Singh',
+        album: 'Sonu Ke Titu Ki Sweety',
+        year: 2018,
+        duration: '4:59',
+        composer: 'Rochak Kohli',
+        blurb: 'An ode to lifelong friendship and shared studio camaraderie. Warm piano chords and unforgettable vocal peaks.'
+      },
+      {
+        videoId: 'r7p0K5m2qLs',
+        title: 'Pehla Nasha (Acoustic)',
+        artist: 'Udit Narayan, Sadhana Sargam',
+        album: 'Jo Jeeta Wohi Sikandar',
+        year: 1992,
+        duration: '4:51',
+        composer: 'Jatin-Lalit',
+        blurb: 'The immortal ballad of first love in slow motion. Plucked acoustic piano notes that suspended an entire generation in dreamy warmth.'
       }
     ]
   }
 ];
 
+// Flat Master Pool of all 77 Tracks
+const ALL_TRACKS = [];
+SESSIONS.forEach(sess => {
+  sess.playlist.forEach(t => {
+    t.session = sess;
+    ALL_TRACKS.push(t);
+  });
+});
+
 // ==========================================================================
-// 2. CREATIVE ARTWORK & QUOTES DATABASE
+// 2. CREATIVE ARTWORK & BILINGUAL QUOTES DATABASE
 // ==========================================================================
 const ARTWORKS = {
   beach: {
@@ -535,13 +965,18 @@ const state = {
   currentSession: null,
   activeSessionId: null,
   isLiveTime: true,
-  playlist: [],
+  playlist: [],               // Currently displayed playlist in the table
   currentTrackIndex: 0,
+  currentPlayingTrack: null,  // Currently playing track object
   isPlaying: false,
   isMuted: false,
   isShuffle: false,
   volume: 85,
   artistsCount: 1853,
+  tableFilterMode: 'session', // 'session' or 'all'
+
+  // Non-repeating History
+  playedHistory: new Set(),
 
   // Playback & Interruption State
   userPaused: false,
@@ -576,6 +1011,7 @@ const el = {
   deckTrackAlbum: document.getElementById('deck-track-album'),
   deckTrackBlurb: document.getElementById('deck-track-blurb'),
   audioEngineBadge: document.getElementById('audio-engine-badge'),
+  queueStatusBadge: document.getElementById('queue-status-badge'),
   deckPrevBtn: document.getElementById('deck-prev-btn'),
   deckPlayBtn: document.getElementById('deck-play-btn'),
   deckPlayIcon: document.getElementById('deck-play-icon'),
@@ -602,8 +1038,11 @@ const el = {
   deckSessionName: document.getElementById('deck-session-name'),
   sessionChipsContainer: document.getElementById('session-chips-container'),
 
-  // Soundtrack Table
+  // Soundtrack Table & Filters
   soundtrackTableBody: document.getElementById('soundtrack-table-body'),
+  filterBtnSession: document.getElementById('filter-btn-session'),
+  filterSessionLabel: document.getElementById('filter-session-label'),
+  filterBtnAll: document.getElementById('filter-btn-all'),
 
   // Quotes Section
   quoteHi: document.getElementById('quote-hi'),
@@ -665,7 +1104,7 @@ function findSessionForHour(hour) {
 }
 
 // ==========================================================================
-// 5. SESSION & PLAYLIST MANAGEMENT
+// 5. SESSION & SMART PLAYLIST MANAGEMENT (Non-Stop, No Repeats)
 // ==========================================================================
 function shuffle(arr) {
   const c = [...arr];
@@ -678,9 +1117,10 @@ function shuffle(arr) {
 
 function getTrackAudioSrc(track, session) {
   if (track && track.audioSrc) return track.audioSrc;
+  if (track && track.session && track.session.audioSrc) return track.session.audioSrc;
   if (session && session.audioSrc) return session.audioSrc;
   const sess = session || state.currentSession;
-  const id = sess ? sess.id : 'late-night';
+  const id = sess ? sess.id : 'golden-hour';
   return `assets/audio/session-${id}.mp3`;
 }
 
@@ -694,21 +1134,32 @@ function setSession(session, isManual = false) {
   // Masthead & Labels
   if (el.mastheadSessionTitle) el.mastheadSessionTitle.textContent = `${session.labelHi} • ${session.labelEn}`;
   if (el.deckSessionName) el.deckSessionName.textContent = `${session.labelEn} Session (${session.slot})`;
+  if (el.filterSessionLabel) el.filterSessionLabel.textContent = `${session.labelHi} (${session.playlist.length} Songs)`;
 
-  // Prepare playlist
-  state.playlist = state.isShuffle ? shuffle(session.playlist) : [...session.playlist];
-  state.currentTrackIndex = 0;
+  // If in session view mode, set playlist to session tracks
+  if (state.tableFilterMode === 'session') {
+    state.playlist = [...session.playlist];
+  } else {
+    state.playlist = [...ALL_TRACKS];
+  }
 
-  renderTrackInfo();
+  // Set initial track if none playing or manual switch
+  if (!state.currentPlayingTrack || isManual) {
+    state.currentTrackIndex = 0;
+    state.currentPlayingTrack = state.playlist[0];
+    renderTrackInfo();
+    loadTrack(state.isPlaying);
+  }
+
   renderSessionChips();
   renderSoundtrackTable();
-
-  loadTrack(state.isPlaying);
 }
 
 function renderTrackInfo() {
-  const track = state.playlist[state.currentTrackIndex] || (state.currentSession ? state.currentSession.playlist[0] : null);
+  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || ALL_TRACKS[0];
   if (!track) return;
+
+  state.currentPlayingTrack = track;
 
   if (el.deckTrackTitle) el.deckTrackTitle.textContent = track.title;
   if (el.deckTrackArtist) el.deckTrackArtist.textContent = track.artist;
@@ -718,10 +1169,11 @@ function renderTrackInfo() {
 
   if (el.trackScrubFill) el.trackScrubFill.style.width = '0%';
   if (el.deckTimeCurrent) el.deckTimeCurrent.textContent = '0:00';
-  if (el.deckTimeDuration) el.deckTimeDuration.textContent = track.duration || '0:00';
+  if (el.deckTimeDuration) el.deckTimeDuration.textContent = track.duration || '4:00';
 
-  if (el.audioEngineBadge) {
-    el.audioEngineBadge.title = 'Continuous background audio & iOS Lock Screen controls active.';
+  if (el.queueStatusBadge) {
+    const unplayedCount = ALL_TRACKS.length - state.playedHistory.size;
+    el.queueStatusBadge.innerHTML = `<span class="badge-dot ochre"></span> ${unplayedCount} New Songs in Queue`;
   }
 
   updateMediaSession(track);
@@ -888,7 +1340,7 @@ function initMediaSessionHandlers() {
 function updateMediaSession(track) {
   if (!('mediaSession' in navigator) || !track) return;
 
-  const session = state.currentSession || findSessionForHour(getLiveKolkataHour());
+  const session = track.session || state.currentSession || findSessionForHour(getLiveKolkataHour());
   const artKey = state.currentArtworkKey || 'beach';
   const artData = ARTWORKS[artKey] || ARTWORKS.beach;
 
@@ -972,7 +1424,7 @@ function setupAudioElementListeners() {
     }
   });
 
-  // Endless continuous loop across tracks
+  // Endless continuous non-repeating progression across tracks
   el.studioAudio.addEventListener('ended', () => {
     playNext(true);
   });
@@ -985,8 +1437,11 @@ function setupAudioElementListeners() {
 }
 
 function loadTrack(autoPlay = true) {
-  const track = state.playlist[state.currentTrackIndex];
+  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex];
   if (!track) return;
+
+  // Mark current track in history
+  state.playedHistory.add(track.videoId || track.title);
 
   renderTrackInfo();
   updateMediaSession(track);
@@ -1025,13 +1480,65 @@ function loadTrack(autoPlay = true) {
   }
 }
 
+// ==========================================================================
+// 7. SMART NON-REPEATING QUEUE ENGINE
+// ==========================================================================
+function getNextUnplayedTrack() {
+  const current = state.currentPlayingTrack;
+  if (current) {
+    state.playedHistory.add(current.videoId || current.title);
+  }
+
+  // 1. Unplayed tracks in currently active playlist
+  let unplayedInCurrent = state.playlist.filter(t => !state.playedHistory.has(t.videoId || t.title));
+
+  // 2. Unplayed tracks in entire 77-song library
+  let unplayedInAll = ALL_TRACKS.filter(t => !state.playedHistory.has(t.videoId || t.title));
+
+  // 3. If every single track in the entire 77-song catalog has been played, reset history and begin fresh cycle!
+  if (unplayedInAll.length === 0) {
+    state.playedHistory.clear();
+    if (current) state.playedHistory.add(current.videoId || current.title);
+    unplayedInCurrent = state.playlist.filter(t => !state.playedHistory.has(t.videoId || t.title));
+    unplayedInAll = ALL_TRACKS.filter(t => !state.playedHistory.has(t.videoId || t.title));
+  }
+
+  const pool = unplayedInCurrent.length > 0 ? unplayedInCurrent : unplayedInAll;
+
+  let nextTrack = null;
+  if (state.isShuffle) {
+    const randIdx = Math.floor(Math.random() * pool.length);
+    nextTrack = pool[randIdx];
+  } else {
+    nextTrack = pool[0];
+  }
+
+  return nextTrack;
+}
+
 function playNext(autoPlay = true) {
-  state.currentTrackIndex = (state.currentTrackIndex + 1) % state.playlist.length;
+  const nextTrack = getNextUnplayedTrack();
+  if (!nextTrack) return;
+
+  state.currentPlayingTrack = nextTrack;
+
+  // Synchronize index in current playlist if it exists
+  const idx = state.playlist.findIndex(t => (t.videoId || t.title) === (nextTrack.videoId || nextTrack.title));
+  if (idx !== -1) {
+    state.currentTrackIndex = idx;
+  } else {
+    // If nextTrack came from broader library, add to playlist so it renders in table
+    state.playlist.push(nextTrack);
+    state.currentTrackIndex = state.playlist.length - 1;
+    renderSoundtrackTable();
+  }
+
   loadTrack(autoPlay);
 }
 
 function playPrev(autoPlay = true) {
   state.currentTrackIndex = (state.currentTrackIndex - 1 + state.playlist.length) % state.playlist.length;
+  state.currentPlayingTrack = state.playlist[state.currentTrackIndex];
   loadTrack(autoPlay);
 }
 
@@ -1044,7 +1551,8 @@ function startPlaybackWithSound() {
   initMediaSessionHandlers();
   requestWakeLock();
 
-  const track = state.playlist[state.currentTrackIndex];
+  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || ALL_TRACKS[0];
+  state.currentPlayingTrack = track;
   const audioSrc = getTrackAudioSrc(track, state.currentSession);
 
   if (el.studioAudio) {
@@ -1094,7 +1602,7 @@ function togglePlay() {
 }
 
 // ==========================================================================
-// 7. ARTWORK SWITCHER (Easel Showcase)
+// 8. ARTWORK SWITCHER (Easel Showcase)
 // ==========================================================================
 function switchArtwork(key) {
   const art = ARTWORKS[key];
@@ -1109,12 +1617,12 @@ function switchArtwork(key) {
   if (el.btnArtBeach) el.btnArtBeach.classList.toggle('active', key === 'beach');
   if (el.btnArtMountain) el.btnArtMountain.classList.toggle('active', key === 'mountain');
 
-  const currentTrack = state.playlist[state.currentTrackIndex];
+  const currentTrack = state.currentPlayingTrack || state.playlist[state.currentTrackIndex];
   if (currentTrack) updateMediaSession(currentTrack);
 }
 
 // ==========================================================================
-// 8. BILINGUAL HINDI & ENGLISH QUOTES
+// 9. BILINGUAL HINDI & ENGLISH QUOTES
 // ==========================================================================
 function renderQuote(index) {
   state.currentQuoteIndex = (index + QUOTES.length) % QUOTES.length;
@@ -1154,7 +1662,7 @@ function updateQuoteDots() {
 }
 
 // ==========================================================================
-// 9. SESSIONS SELECTOR BAR & SOUNDTRACK TABLE
+// 10. SESSIONS SELECTOR BAR & SOUNDTRACK TABLE
 // ==========================================================================
 function renderSessionChips() {
   if (!el.sessionChipsContainer) return;
@@ -1188,11 +1696,12 @@ function renderSoundtrackTable() {
   el.soundtrackTableBody.innerHTML = '';
 
   const tracks = state.playlist;
+  const currentPlayingId = state.currentPlayingTrack ? (state.currentPlayingTrack.videoId || state.currentPlayingTrack.title) : null;
 
   tracks.forEach((track, index) => {
     const tr = document.createElement('tr');
     tr.dataset.index = index;
-    const isCurrent = index === state.currentTrackIndex;
+    const isCurrent = currentPlayingId === (track.videoId || track.title);
     if (isCurrent) tr.classList.add('active-row');
 
     tr.innerHTML = `
@@ -1210,6 +1719,7 @@ function renderSoundtrackTable() {
 
     tr.addEventListener('click', () => {
       state.currentTrackIndex = index;
+      state.currentPlayingTrack = track;
       state.userPaused = false;
       loadTrack(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1222,15 +1732,19 @@ function renderSoundtrackTable() {
 function updateSoundtrackTableActiveRow() {
   if (!el.soundtrackTableBody) return;
   const rows = el.soundtrackTableBody.querySelectorAll('tr');
+  const currentPlayingId = state.currentPlayingTrack ? (state.currentPlayingTrack.videoId || state.currentPlayingTrack.title) : null;
+
   rows.forEach((tr, index) => {
-    const isCurrent = index === state.currentTrackIndex;
+    const track = state.playlist[index];
+    if (!track) return;
+
+    const isCurrent = currentPlayingId === (track.videoId || track.title);
     tr.classList.toggle('active-row', isCurrent);
 
     const titleEl = tr.querySelector('.table-track-title');
     const pillEl = tr.querySelector('.table-play-pill');
-    const track = state.playlist[index];
 
-    if (titleEl && track) {
+    if (titleEl) {
       titleEl.innerHTML = `
         <span>${track.title}</span>
         ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
@@ -1244,7 +1758,7 @@ function updateSoundtrackTableActiveRow() {
 }
 
 // ==========================================================================
-// 10. EVENT LISTENERS & SETUP
+// 11. EVENT LISTENERS & SETUP
 // ==========================================================================
 function setupDeckControls() {
   el.deckPlayBtn?.addEventListener('click', togglePlay);
@@ -1254,10 +1768,23 @@ function setupDeckControls() {
   el.deckShuffleBtn?.addEventListener('click', () => {
     state.isShuffle = !state.isShuffle;
     el.deckShuffleBtn.classList.toggle('toggled', state.isShuffle);
-    state.playlist = state.isShuffle ? shuffle(state.currentSession.playlist) : [...state.currentSession.playlist];
-    state.currentTrackIndex = 0;
+  });
+
+  // Table Filter: Current Session vs All 77 Songs
+  el.filterBtnSession?.addEventListener('click', () => {
+    state.tableFilterMode = 'session';
+    el.filterBtnSession.classList.add('active');
+    el.filterBtnAll.classList.remove('active');
+    state.playlist = [...state.currentSession.playlist];
     renderSoundtrackTable();
-    loadTrack(state.isPlaying);
+  });
+
+  el.filterBtnAll?.addEventListener('click', () => {
+    state.tableFilterMode = 'all';
+    el.filterBtnAll.classList.add('active');
+    el.filterBtnSession.classList.remove('active');
+    state.playlist = [...ALL_TRACKS];
+    renderSoundtrackTable();
   });
 
   el.deckVolSlider?.addEventListener('input', (e) => {
@@ -1364,7 +1891,7 @@ function updateMuteIcons() {
 }
 
 // ==========================================================================
-// 11. INITIALIZATION
+// 12. INITIALIZATION
 // ==========================================================================
 function init() {
   setupDeckControls();

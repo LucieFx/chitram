@@ -388,6 +388,29 @@ a {
   color: var(--ink-secondary);
 }
 
+.kicker-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.queue-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-rust);
+  background-color: var(--accent-rust-soft);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+.badge-dot.ochre {
+  background-color: var(--accent-rust);
+}
+
 .lock-screen-badge {
   display: inline-flex;
   align-items: center;
@@ -776,6 +799,51 @@ a {
 
 .soundtrack-table-section .stage-container {
   display: block;
+}
+
+.soundtrack-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.soundtrack-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.soundtrack-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table-filter-btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: var(--paper-card);
+  color: var(--ink-secondary);
+  border: 1px solid var(--border-medium);
+  transition: all 140ms ease;
+  cursor: pointer;
+}
+
+.table-filter-btn:hover {
+  background-color: var(--paper-hover);
+  color: var(--ink-primary);
+}
+
+.table-filter-btn.active {
+  background-color: var(--ink-primary);
+  color: var(--paper-white);
+  border-color: var(--ink-primary);
+  font-weight: 700;
 }
 
 .soundtrack-table-wrapper {

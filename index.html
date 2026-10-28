@@ -118,9 +118,14 @@
           
           <div class="studio-kicker-row">
             <span class="kicker-label">Now playing in the studio</span>
-            <span class="lock-screen-badge" id="audio-engine-badge" title="Lock screen playback active">
-              <span class="badge-dot"></span> Lock Screen Ready
-            </span>
+            <div class="kicker-badges">
+              <span class="queue-status-badge" id="queue-status-badge">
+                <span class="badge-dot ochre"></span> 77 Songs • Always New
+              </span>
+              <span class="lock-screen-badge" id="audio-engine-badge" title="Lock screen playback active">
+                <span class="badge-dot"></span> Lock Screen Ready
+              </span>
+            </div>
           </div>
 
           <!-- Dynamic Song Title & Artist Details -->
@@ -246,6 +251,23 @@
     <section class="soundtrack-table-section" id="soundtrack" aria-label="Studio Soundtrack">
       <div class="stage-container">
         
+        <div class="soundtrack-header-row">
+          <div class="soundtrack-title-group">
+            <span class="bar-title-hi">गीत संग्रह</span>
+            <span class="bar-title-en">Studio Soundtrack • 77 Songs</span>
+          </div>
+
+          <!-- Filter buttons: Current Session vs All 77 Songs -->
+          <div class="soundtrack-filter-group">
+            <button type="button" class="table-filter-btn active" id="filter-btn-session">
+              <span id="filter-session-label">Current Session (11 Songs)</span>
+            </button>
+            <button type="button" class="table-filter-btn" id="filter-btn-all">
+              <span>All 77 Songs (सभी गीत)</span>
+            </button>
+          </div>
+        </div>
+
         <div class="soundtrack-table-wrapper">
           <table class="soundtrack-table">
             <thead>
