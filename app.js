@@ -21,7 +21,6 @@ const SESSIONS = [
     playlist: [
       {
         videoId: 'Il7Nv270zNk',
-        audioSrc: 'assets/audio/chitram-studio-sample.wav',
         title: 'cold/mess',
         artist: 'Prateek Kuhad',
         album: 'cold/mess EP',
@@ -439,8 +438,8 @@ const state = {
   artistsCount: 24,
   paintMode: true,
 
-  // Audio Engine & Mode (iOS / Android Lock Screen & Background Audio)
-  audioMode: 'youtube', // 'native' | 'youtube'
+  // Playback & Interruption State
+  userPaused: false,
   isAudioUnlocked: false,
 
   // YouTube
@@ -456,9 +455,6 @@ const state = {
 };
 
 const el = {
-  // Persistent Native Audio Element
-  studioAudio: document.getElementById('studio-audio'),
-
   // Masthead
   liveIstClock: document.getElementById('live-ist-clock'),
   mastheadSessionTitle: document.getElementById('masthead-session-title'),
@@ -649,17 +645,10 @@ function renderTrackInfo() {
   el.deckTimeDuration.textContent = '0:00';
 
   if (el.audioEngineBadge) {
-    if (track.audioSrc) {
-      el.audioEngineBadge.textContent = '● Lock Screen Audio Active';
-      el.audioEngineBadge.title = 'Native audio active: plays continuously through Lock Screen and Control Center';
-      el.audioEngineBadge.style.color = '#1a744e';
-      el.audioEngineBadge.style.borderColor = 'rgba(72, 184, 136, 0.4)';
-    } else {
-      el.audioEngineBadge.textContent = '● Lock Screen Ready';
-      el.audioEngineBadge.title = 'MediaSession active on Lock Screen; ambient soundscapes play in background';
-      el.audioEngineBadge.style.color = '#b07936';
-      el.audioEngineBadge.style.borderColor = 'rgba(242, 180, 81, 0.4)';
-    }
+    el.audioEngineBadge.textContent = '● Continuous Loop Active';
+    el.audioEngineBadge.title = 'Songs loop continuously without stopping. Lock Screen Media Controls & Background playback enabled.';
+    el.audioEngineBadge.style.color = '#1a744e';
+    el.audioEngineBadge.style.borderColor = 'rgba(72, 184, 136, 0.4)';
   }
 
   updateMediaSession(track);
@@ -692,9 +681,6 @@ function updatePlayState(playing) {
 }
 
 function getCurrentPlaybackTime() {
-  if (state.audioMode === 'native' && el.studioAudio) {
-    return el.studioAudio.currentTime || 0;
-  }
   if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getCurrentTime === 'function') {
     return state.ytPlayer.getCurrentTime() || 0;
   }
@@ -702,9 +688,6 @@ function getCurrentPlaybackTime() {
 }
 
 function getCurrentPlaybackDuration() {
-  if (state.audioMode === 'native' && el.studioAudio) {
-    return el.studioAudio.duration || 0;
-  }
   if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getDuration === 'function') {
     return state.ytPlayer.getDuration() || 0;
   }
@@ -712,9 +695,7 @@ function getCurrentPlaybackDuration() {
 }
 
 function seekToTime(seconds) {
-  if (state.audioMode === 'native' && el.studioAudio) {
-    el.studioAudio.currentTime = seconds;
-  } else if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.seekTo === 'function') {
+  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.seekTo === 'function') {
     state.ytPlayer.seekTo(seconds, true);
   }
   updateMediaSessionPositionState();
@@ -743,9 +724,31 @@ function stopTrackProgress() {
 }
 
 // ==========================================================================
-// 5. UNIFIED AUDIO ENGINE & MEDIA SESSION (iOS & Android Lock Screen & Background)
+// 5. UNIFIED AUDIO ENGINE, MEDIA SESSION & CONTINUOUS LOOP
 // ==========================================================================
-const SILENT_AUDIO_URI = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+let screenWakeLock = null;
+
+async function requestWakeLock() {
+  if ('wakeLock' in navigator) {
+    try {
+      if (!screenWakeLock) {
+        screenWakeLock = await navigator.wakeLock.request('screen');
+        screenWakeLock.addEventListener('release', () => {
+          screenWakeLock = null;
+        });
+      }
+    } catch (e) {}
+  }
+}
+
+function releaseWakeLock() {
+  if (screenWakeLock) {
+    try {
+      screenWakeLock.release();
+    } catch (e) {}
+    screenWakeLock = null;
+  }
+}
 
 function setupAudioSession() {
   if ('audioSession' in navigator) {
@@ -767,33 +770,55 @@ function initMediaSessionHandlers() {
   };
 
   safeSet('play', () => {
-    if (!state.isPlaying) togglePlay();
+    state.userPaused = false;
+    if (state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+      state.ytPlayer.playVideo();
+      updatePlayState(true);
+      requestWakeLock();
+    }
   });
+
   safeSet('pause', () => {
-    if (state.isPlaying) togglePlay();
+    state.userPaused = true;
+    if (state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
+      state.ytPlayer.pauseVideo();
+      updatePlayState(false);
+      releaseWakeLock();
+    }
   });
+
   safeSet('previoustrack', () => {
-    playPrev();
+    playPrev(true);
   });
+
   safeSet('nexttrack', () => {
-    playNext();
+    playNext(true);
   });
+
   safeSet('seekto', (details) => {
     if (details.seekTime !== undefined) {
       seekToTime(details.seekTime);
     }
   });
+
   safeSet('seekbackward', (details) => {
     const cur = getCurrentPlaybackTime();
     seekToTime(Math.max(0, cur - (details.seekOffset || 10)));
   });
+
   safeSet('seekforward', (details) => {
     const cur = getCurrentPlaybackTime();
     const dur = getCurrentPlaybackDuration();
     seekToTime(Math.min(dur || 99999, cur + (details.seekOffset || 10)));
   });
+
   safeSet('stop', () => {
-    if (state.isPlaying) togglePlay();
+    state.userPaused = true;
+    if (state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
+      state.ytPlayer.pauseVideo();
+      updatePlayState(false);
+      releaseWakeLock();
+    }
   });
 }
 
@@ -843,59 +868,20 @@ function updateMediaSessionPositionState() {
 
 function setAppVolume(volumePct) {
   state.volume = Math.max(0, Math.min(100, volumePct));
-  const volRatio = state.isMuted ? 0 : (state.volume / 100);
-
-  if (el.studioAudio && state.audioMode === 'native') {
-    el.studioAudio.volume = volRatio;
-  }
   if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.setVolume === 'function') {
     state.ytPlayer.setVolume(state.isMuted ? 0 : state.volume);
   }
-
   updateAmbienceLevels();
   updateMuteIcons();
-}
-
-function initStudioAudioElement() {
-  if (!el.studioAudio) return;
-
-  el.studioAudio.addEventListener('ended', () => {
-    if (state.audioMode === 'native') {
-      playNext();
-    }
-  });
-
-  el.studioAudio.addEventListener('play', () => {
-    if (state.audioMode === 'native') {
-      updatePlayState(true);
-    }
-  });
-
-  el.studioAudio.addEventListener('pause', () => {
-    if (state.audioMode === 'native' && !el.studioAudio.seeking) {
-      updatePlayState(false);
-    }
-  });
-
-  el.studioAudio.addEventListener('error', (e) => {
-    if (state.audioMode === 'native') {
-      console.warn('Native audio playback failed, falling back to YouTube companion:', e);
-      state.audioMode = 'youtube';
-      const track = state.playlist[state.currentTrackIndex];
-      if (track && state.ytPlayer && state.ytReady) {
-        state.ytPlayer.loadVideoById(track.videoId);
-      }
-    }
-  });
 }
 
 function initYouTube() {
   window.onYouTubeIframeAPIReady = () => {
     const track = state.playlist[state.currentTrackIndex];
     state.ytPlayer = new YT.Player('yt-player-slot', {
-      height: '1',
-      width: '1',
-      videoId: (track && !track.audioSrc) ? track.videoId : 'Il7Nv270zNk',
+      height: '200',
+      width: '200',
+      videoId: track ? track.videoId : 'Il7Nv270zNk',
       playerVars: {
         autoplay: 1,
         controls: 0,
@@ -905,22 +891,21 @@ function initYouTube() {
         iv_load_policy: 3,
         modestbranding: 1,
         playsinline: 1,
-        rel: 0
+        rel: 0,
+        loop: 1
       },
       events: {
         onReady: (event) => {
           state.ytReady = true;
           event.target.setVolume(state.volume);
           try {
-            if (state.audioMode !== 'native') {
-              event.target.unMute();
-              event.target.playVideo();
-            }
+            event.target.unMute();
+            event.target.playVideo();
           } catch (e) {
             console.log('Autoplay restriction:', e);
           }
           setTimeout(() => {
-            if (state.ytPlayer && state.audioMode !== 'native' && state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+            if (state.ytPlayer && state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
               state.ytPlayer.mute();
               state.ytPlayer.playVideo();
               state.isMuted = true;
@@ -929,20 +914,24 @@ function initYouTube() {
           }, 1500);
         },
         onStateChange: (event) => {
-          if (state.audioMode === 'native') return;
           if (event.data === YT.PlayerState.PLAYING) {
+            state.userPaused = false;
             updatePlayState(true);
             el.unmuteNotice.classList.add('hidden');
+            requestWakeLock();
           } else if (event.data === YT.PlayerState.PAUSED) {
-            updatePlayState(false);
+            if (state.userPaused) {
+              updatePlayState(false);
+              releaseWakeLock();
+            }
           } else if (event.data === YT.PlayerState.ENDED) {
-            playNext();
+            // Endless continuous loop to next track
+            playNext(true);
           }
         },
         onError: () => {
-          if (state.audioMode !== 'native') {
-            playNext();
-          }
+          // If a track encounters an error, auto-advance to keep loop alive
+          setTimeout(() => playNext(true), 500);
         }
       }
     });
@@ -953,7 +942,7 @@ function initYouTube() {
   document.head.appendChild(tag);
 }
 
-function loadTrack() {
+function loadTrack(autoPlay = true) {
   const track = state.playlist[state.currentTrackIndex];
   if (!track) return;
 
@@ -961,63 +950,37 @@ function loadTrack() {
   updateMediaSession(track);
   setupAudioSession();
 
-  if (track.audioSrc && el.studioAudio) {
-    // --- NATIVE HIGH-FIDELITY AUDIO ENGINE (iOS & Android Lock Screen & Background Audio) ---
-    state.audioMode = 'native';
-
-    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
-      try { state.ytPlayer.pauseVideo(); } catch (e) {}
-    }
-
-    el.studioAudio.loop = false;
-    if (el.studioAudio.src !== track.audioSrc) {
-      el.studioAudio.src = track.audioSrc;
-    }
-    el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
-
-    const playPromise = el.studioAudio.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
+  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.loadVideoById === 'function') {
+    try {
+      if (autoPlay || state.isPlaying) {
+        state.userPaused = false;
+        state.ytPlayer.loadVideoById({
+          videoId: track.videoId,
+          startSeconds: 0
+        });
+        state.ytPlayer.playVideo();
         updatePlayState(true);
-      }).catch(err => {
-        console.warn('Native audio play error:', err);
-        updatePlayState(false);
-      });
-    }
-  } else {
-    // --- YOUTUBE COMPANION + PERSISTENT BACKGROUND AUDIO ANCHOR ---
-    state.audioMode = 'youtube';
-
-    // Keep the audio element active with silent loop carrier to maintain iOS/Android audio session
-    // This keeps Web Audio Ambience alive in background and keeps the Lock Screen MediaSession widget active!
-    if (el.studioAudio) {
-      if (el.studioAudio.src !== SILENT_AUDIO_URI) {
-        el.studioAudio.src = SILENT_AUDIO_URI;
+        requestWakeLock();
+      } else {
+        state.ytPlayer.cueVideoById({
+          videoId: track.videoId,
+          startSeconds: 0
+        });
       }
-      el.studioAudio.loop = true;
-      el.studioAudio.volume = 0.01;
-      el.studioAudio.play().catch(() => {});
-    }
-
-    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.loadVideoById === 'function') {
-      try {
-        state.ytPlayer.loadVideoById(track.videoId);
-        updatePlayState(true);
-      } catch (err) {
-        console.warn('Track load failed:', err);
-      }
+    } catch (err) {
+      console.warn('Track load failed:', err);
     }
   }
 }
 
-function playNext() {
+function playNext(autoPlay = true) {
   state.currentTrackIndex = (state.currentTrackIndex + 1) % state.playlist.length;
-  loadTrack();
+  loadTrack(autoPlay);
 }
 
-function playPrev() {
+function playPrev(autoPlay = true) {
   state.currentTrackIndex = (state.currentTrackIndex - 1 + state.playlist.length) % state.playlist.length;
-  loadTrack();
+  loadTrack(autoPlay);
 }
 
 function togglePlay() {
@@ -1025,38 +988,23 @@ function togglePlay() {
   initAudioContext();
   if (!state.isAudioUnlocked) unlockAudio();
 
-  const track = state.playlist[state.currentTrackIndex];
-
   if (state.isPlaying) {
-    // PAUSE
-    if (state.audioMode === 'native') {
-      if (el.studioAudio) el.studioAudio.pause();
-    } else {
-      if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
-        state.ytPlayer.pauseVideo();
-      }
-      if (el.studioAudio) el.studioAudio.pause();
+    state.userPaused = true;
+    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
+      state.ytPlayer.pauseVideo();
     }
     updatePlayState(false);
+    releaseWakeLock();
   } else {
-    // PLAY
-    if (state.audioMode === 'native') {
-      if (el.studioAudio) {
-        el.studioAudio.play().catch(e => console.warn('Audio play error:', e));
-      }
-    } else {
-      if (el.studioAudio) {
-        if (el.studioAudio.src !== SILENT_AUDIO_URI) el.studioAudio.src = SILENT_AUDIO_URI;
-        el.studioAudio.loop = true;
-        el.studioAudio.play().catch(() => {});
-      }
-      if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.playVideo === 'function') {
-        state.ytPlayer.playVideo();
-      }
+    state.userPaused = false;
+    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.playVideo === 'function') {
+      state.ytPlayer.playVideo();
     }
     updatePlayState(true);
+    requestWakeLock();
   }
 
+  const track = state.playlist[state.currentTrackIndex];
   if (track) updateMediaSession(track);
 }
 
@@ -1355,7 +1303,7 @@ function renderSoundtrackTracks() {
 
     card.innerHTML = `
       <div class="ledger-text">
-        <h3 class="ledger-title">${track.title}${track.audioSrc ? '<span class="ledger-audio-badge" title="High-fidelity direct audio with Lock-Screen playback">Lock-Screen Audio</span>' : ''}</h3>
+        <h3 class="ledger-title">${track.title}</h3>
         <p class="ledger-credits">${track.artist} — ${track.album}, ${track.year}</p>
         <p class="ledger-blurb">"${track.blurb}"</p>
       </div>
@@ -1378,7 +1326,8 @@ function renderSoundtrackTracks() {
         state.currentTrackIndex = 0;
       }
 
-      loadTrack();
+      state.userPaused = false;
+      loadTrack(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -1492,21 +1441,13 @@ function setupDeckControls() {
     initAudioContext();
     initMediaSessionHandlers();
 
-    if (el.studioAudio) {
-      if (state.audioMode === 'native') {
-        el.studioAudio.play().catch(() => {});
-      } else {
-        if (el.studioAudio.src !== SILENT_AUDIO_URI) el.studioAudio.src = SILENT_AUDIO_URI;
-        el.studioAudio.loop = true;
-        el.studioAudio.volume = 0.01;
-        el.studioAudio.play().catch(() => {});
-      }
-    }
-
     if (state.ytPlayer && state.ytReady) {
       try {
         state.ytPlayer.unMute();
         state.isMuted = false;
+        if (state.isPlaying) {
+          state.ytPlayer.playVideo();
+        }
       } catch (e) {}
     }
 
@@ -1525,23 +1466,28 @@ function setupDeckControls() {
 
   // Background & Lock Screen audio persistence & recovery
   document.addEventListener('visibilitychange', () => {
-    // CRITICAL: NEVER pause audio when document becomes hidden!
-    if (!document.hidden) {
-      // User unlocked screen or returned to tab:
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-      }
-
-      if (state.isPlaying) {
-        if (state.audioMode === 'native' && el.studioAudio && el.studioAudio.paused) {
-          el.studioAudio.play().catch(() => {});
-        } else if (state.audioMode === 'youtube' && state.ytPlayer && state.ytReady) {
+    if (document.hidden) {
+      // Screen locked or tab backgrounded:
+      // If currently playing, attempt to ensure playback continues
+      if (state.isPlaying && !state.userPaused && state.ytPlayer && state.ytReady) {
+        setTimeout(() => {
           try {
             if (state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
               state.ytPlayer.playVideo();
             }
           } catch (e) {}
-        }
+        }, 150);
+      }
+    } else {
+      // Screen unlocked or tab returned to foreground:
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      if (state.isPlaying && !state.userPaused && state.ytPlayer && state.ytReady) {
+        try {
+          state.ytPlayer.playVideo();
+        } catch (e) {}
+        requestWakeLock();
         updatePlayState(true);
       }
     }
@@ -1550,6 +1496,12 @@ function setupDeckControls() {
   window.addEventListener('pageshow', () => {
     if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume().catch(() => {});
+    }
+    if (state.isPlaying && !state.userPaused && state.ytPlayer && state.ytReady) {
+      try {
+        state.ytPlayer.playVideo();
+      } catch (e) {}
+      requestWakeLock();
     }
   });
 
@@ -1593,7 +1545,6 @@ function init() {
   renderSoundtrackSection();
   initCanvasSplatter();
   setupDeckControls();
-  initStudioAudioElement();
   setupAudioSession();
   initMediaSessionHandlers();
 

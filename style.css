@@ -53,6 +53,18 @@ body {
   overflow-x: hidden;
 }
 
+/* Hidden YouTube Engine Container (Rendered to prevent mobile background throttling) */
+#yt-player-slot {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  opacity: 0.001;
+  pointer-events: none;
+  z-index: -10;
+}
+
 button {
   background: none;
   border: none;
