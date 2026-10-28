@@ -1,6 +1,7 @@
 {
   "name": "chitram",
   "version": "1.0.0",
+  "private": true,
   "description": "चित्रम् • CHITRAM — The Artist’s Studio Radio",
   "scripts": {
     "build": "echo 'Static site ready'",
