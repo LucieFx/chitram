@@ -81,16 +81,91 @@ body {
   background-size: 24px 24px;
 }
 
-/* Background YouTube companion slot */
-#yt-player-slot, iframe#yt-player-slot {
-  position: fixed;
-  bottom: -220px;
-  right: -220px;
-  width: 200px;
-  height: 200px;
-  opacity: 0.01;
-  pointer-events: none;
-  z-index: -10;
+/* Deluxe YouTube Mini-Player Card */
+.deck-yt-card {
+  margin: 1.15rem 0 0.85rem 0;
+  width: 100%;
+  max-width: 320px;
+  background: var(--paper-white);
+  border: 1px solid rgba(24, 21, 26, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -2px rgba(45, 34, 25, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.deck-yt-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(45, 34, 25, 0.12);
+}
+
+.deck-yt-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0d0c0e;
+  overflow: hidden;
+}
+
+.deck-yt-viewport iframe,
+.deck-yt-viewport #yt-player-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  display: block;
+}
+
+.deck-yt-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.74rem;
+  background: #faf6f0;
+  border-top: 1px solid rgba(24, 21, 26, 0.06);
+}
+
+.deck-yt-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deck-yt-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #e53935;
+  display: inline-block;
+  animation: pulse-live 2s infinite ease-in-out;
+}
+
+.deck-yt-badge-text {
+  color: var(--ink-muted);
+  font-size: 0.73rem;
+  font-weight: 500;
+}
+
+.deck-yt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #c4302b;
+  font-weight: 600;
+  font-size: 0.73rem;
+  transition: opacity 0.2s;
+}
+
+.deck-yt-link:hover {
+  opacity: 0.8;
+}
+
+.deck-yt-link .yt-icon {
+  width: 14px;
+  height: 14px;
 }
 
 button {
@@ -1270,6 +1345,11 @@ a {
   .player-left-col {
     text-align: center;
     align-items: center;
+  }
+
+  .deck-yt-card {
+    max-width: 280px;
+    margin: 0.85rem auto;
   }
 
   .studio-kicker-row {
