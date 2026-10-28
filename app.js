@@ -4342,9 +4342,6 @@ function getCurrentPlaybackTime() {
       if (!isNaN(ytTime) && ytTime >= 0) return ytTime;
     } catch (e) {}
   }
-  if (el.studioAudio && !isNaN(el.studioAudio.currentTime)) {
-    return el.studioAudio.currentTime || 0;
-  }
   return 0;
 }
 
@@ -4361,9 +4358,6 @@ function getCurrentPlaybackDuration() {
       return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     }
   }
-  if (el.studioAudio && !isNaN(el.studioAudio.duration) && isFinite(el.studioAudio.duration) && el.studioAudio.duration > 0) {
-    return el.studioAudio.duration;
-  }
   return 240;
 }
 
@@ -4375,7 +4369,8 @@ function seekToTime(seconds) {
   }
   if (el.studioAudio && !isNaN(seconds)) {
     try {
-      el.studioAudio.currentTime = seconds;
+      const dur = el.studioAudio.duration;
+      el.studioAudio.currentTime = (dur && dur > 0) ? (seconds % dur) : 0;
     } catch (e) {}
   }
   updateTrackProgressDisplay();
@@ -4620,18 +4615,9 @@ function setAppVolume(volumePct) {
 function setupAudioElementListeners() {
   if (!el.studioAudio) return;
 
-  // IMPORTANT: Set loop = false so the ended event fires and advances to the next song!
-  el.studioAudio.loop = false;
-
-  el.studioAudio.addEventListener('timeupdate', () => {
-    updateTrackProgressDisplay();
-    updateMediaSessionPositionState();
-  });
-
-  el.studioAudio.addEventListener('durationchange', () => {
-    updateTrackProgressDisplay();
-    updateMediaSessionPositionState();
-  });
+  // Carrier companion audio must loop seamlessly to keep iOS background & lock-screen
+  // session alive without EVER cutting off the real YouTube song!
+  el.studioAudio.loop = true;
 
   el.studioAudio.addEventListener('play', () => {
     updatePlayState(true);
@@ -4649,14 +4635,17 @@ function setupAudioElementListeners() {
     }
   });
 
-  // Endless non-repeating continuous progression across tracks
+  // Seamless ambient loop restart (never triggers premature track advancement)
   el.studioAudio.addEventListener('ended', () => {
-    playNext(true);
+    if (state.isPlaying && !state.userPaused) {
+      el.studioAudio.currentTime = 0;
+      el.studioAudio.play().catch(() => {});
+    }
   });
 
+  // Companion audio warning logger - never skip the user's active song on audio error
   el.studioAudio.addEventListener('error', (err) => {
-    console.warn('Audio warning, advancing:', err);
-    setTimeout(() => playNext(true), 600);
+    console.warn('Companion audio notice (non-fatal):', err);
   });
 }
 
@@ -4689,7 +4678,7 @@ function loadTrack(autoPlay = true) {
   // 2. Play companion native audio for iOS background & lock-screen
   const audioSrc = getTrackAudioSrc(track, state.currentSession);
   if (el.studioAudio) {
-    el.studioAudio.loop = false;
+    el.studioAudio.loop = true;
     el.studioAudio.src = audioSrc;
     el.studioAudio.currentTime = 0;
     el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
@@ -4758,7 +4747,14 @@ function getNextUnplayedTrack() {
   return nextTrack;
 }
 
+let isAdvancingTrack = false;
 function playNext(autoPlay = true) {
+  if (isAdvancingTrack) return;
+  isAdvancingTrack = true;
+  setTimeout(() => {
+    isAdvancingTrack = false;
+  }, 1200);
+
   const nextTrack = getNextUnplayedTrack();
   if (!nextTrack) return;
 
@@ -4805,9 +4801,9 @@ function startPlaybackWithSound() {
     } catch (e) {}
   }
 
-  // Play Native Audio
+  // Play Native Audio (looped carrier audio for iOS background support)
   if (el.studioAudio) {
-    el.studioAudio.loop = false;
+    el.studioAudio.loop = true;
     const audioSrc = getTrackAudioSrc(track, state.currentSession);
     const currentSrc = el.studioAudio.getAttribute('src');
     if (!currentSrc || currentSrc !== audioSrc) {
