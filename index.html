@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <html lang="en-IN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <title>चित्रम् • CHITTRAM — The Artist’s Studio Radio</title>
-  <meta name="description" content="An intimate studio radio for painters, illustrators, and sketch artists. The light, the mood, and the melodies flow with every hour of the creative day.">
+  <meta name="description"
+    content="An intimate studio radio for painters, illustrators, and sketch artists. The light, the mood, and the melodies flow with every hour of the creative day.">
   <meta name="theme-color" content="#f6f1ea">
   <meta name="color-scheme" content="light">
 
   <!-- OpenGraph -->
   <meta property="og:title" content="चित्रम् • CHITTRAM — Music for Drawing & Painting">
-  <meta property="og:description" content="Two brushes, one canvas, every hour of the day. Curated acoustic and indie melodies for painters and sketch artists.">
+  <meta property="og:description"
+    content="Two brushes, one canvas, every hour of the day. Curated acoustic and indie melodies for painters and sketch artists.">
   <meta property="og:type" content="website">
 
   <!-- Google Fonts: Rozha One for Devanagari, Playfair Display for Editorial Titles, Inter for UI -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Rozha+One&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Rozha+One&display=swap"
+    rel="stylesheet">
 
   <!-- Preconnect to YouTube -->
   <link rel="preconnect" href="https://www.youtube-nocookie.com">
@@ -38,6 +43,7 @@
   }
   </script>
 </head>
+
 <body>
   <!-- Persistent Native HTML5 Studio Audio Player -->
   <audio id="studio-audio" preload="none"></audio>
@@ -50,26 +56,12 @@
     <!-- Top Navigation Masthead -->
     <header class="masthead">
       <div class="masthead-inner">
-        
+
         <!-- Studio Brand Logo -->
         <a href="#studio-deck" class="brand-link" aria-label="Chittram Studio Home">
           <span class="brand-hindi">चित्रम्</span>
           <span class="brand-tagline">The Artist’s Studio</span>
         </a>
-
-        <!-- Live Status: IST Clock & Listener Count -->
-        <div class="live-status-pill">
-          <span class="live-clock-badge">
-            <span class="live-dot" aria-hidden="true"></span>
-            <span id="live-ist-clock">--:-- -- IST</span>
-          </span>
-          <span class="pill-divider" aria-hidden="true">·</span>
-          <span class="live-listeners-badge">
-            <span id="live-artists-count">1,853</span> listening
-          </span>
-          <span class="pill-divider" aria-hidden="true">·</span>
-          <span class="live-session-name" id="masthead-session-title">Late Night</span>
-        </div>
 
         <!-- Studio Quick Nav -->
         <div class="masthead-actions">
@@ -97,7 +89,7 @@
 
         <!-- LEFT COLUMN: Track Info & Playback Controls -->
         <div class="player-left-col">
-          
+
           <div class="studio-kicker-row">
             <span class="kicker-label">Now playing in the studio</span>
           </div>
@@ -105,7 +97,7 @@
           <!-- Dynamic Song Title & Artist Details -->
           <div class="track-meta-block">
             <h1 class="track-hero-title" id="deck-track-title">Sawaar Loon</h1>
-            
+
             <div class="track-sub-details">
               <span class="track-hero-artist" id="deck-track-artist">Monali Thakur</span>
               <span class="meta-dot">·</span>
@@ -127,8 +119,12 @@
                 <span class="deck-yt-live-dot"></span>
                 <span class="deck-yt-badge-text">Original YouTube Audio Engine</span>
               </div>
-              <a id="deck-yt-out" href="https://www.youtube.com/watch?v=W4rSh7R-KP8" target="_blank" rel="noopener noreferrer" class="deck-yt-link" title="Open in YouTube">
-                <svg viewBox="0 0 24 24" class="yt-icon" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <a id="deck-yt-out" href="https://www.youtube.com/watch?v=W4rSh7R-KP8" target="_blank"
+                rel="noopener noreferrer" class="deck-yt-link" title="Open in YouTube">
+                <svg viewBox="0 0 24 24" class="yt-icon" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
                 <span>Watch</span>
               </a>
             </div>
@@ -137,14 +133,16 @@
           <!-- Transport Controls Row -->
           <div class="player-controls-row">
             <!-- Prev Button -->
-            <button type="button" id="deck-prev-btn" class="control-btn prev-btn" aria-label="Previous Track" title="Previous Track (Left Arrow)">
+            <button type="button" id="deck-prev-btn" class="control-btn prev-btn" aria-label="Previous Track"
+              title="Previous Track (Left Arrow)">
               <svg viewBox="0 0 24 24" class="control-svg" aria-hidden="true">
-                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
               </svg>
             </button>
 
             <!-- Circular Solid Play / Pause Button -->
-            <button type="button" id="deck-play-btn" class="circle-play-btn" aria-label="Play or Pause" title="Play / Pause (Spacebar)">
+            <button type="button" id="deck-play-btn" class="circle-play-btn" aria-label="Play or Pause"
+              title="Play / Pause (Spacebar)">
               <svg id="deck-play-icon" viewBox="0 0 24 24" class="play-svg" aria-hidden="true">
                 <polygon points="9,6 18,12 9,18" />
               </svg>
@@ -156,9 +154,10 @@
             </button>
 
             <!-- Next Button -->
-            <button type="button" id="deck-next-btn" class="control-btn next-btn" aria-label="Next Track" title="Next Track (Right Arrow)">
+            <button type="button" id="deck-next-btn" class="control-btn next-btn" aria-label="Next Track"
+              title="Next Track (Right Arrow)">
               <svg viewBox="0 0 24 24" class="control-svg" aria-hidden="true">
-                <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/>
+                <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z" />
               </svg>
             </button>
           </div>
@@ -179,10 +178,12 @@
         <!-- RIGHT COLUMN: Framed Canvas on Easel Artwork (Rotates every 1 minute) -->
         <div class="player-right-col">
           <div class="easel-showcase-frame" id="easel-showcase-frame">
-            
+
             <!-- Gallery Matted Painting Frame with Soft Drop Shadow -->
-            <div class="easel-canvas-wrapper" id="easel-canvas-wrapper" title="Click to view next artwork in studio collection">
-              <img id="easel-image" src="assets/artworks/IMG_9812.svg" alt="Chittram atelier study in rich plum, wine and warm linen tones" class="easel-painting-img" />
+            <div class="easel-canvas-wrapper" id="easel-canvas-wrapper"
+              title="Click to view next artwork in studio collection">
+              <img id="easel-image" src="assets/artworks/IMG_9812.svg"
+                alt="Chittram atelier study in rich plum, wine and warm linen tones" class="easel-painting-img" />
             </div>
 
             <!-- Artwork Caption Under Easel with 1-Min Rotation Slides -->
@@ -192,7 +193,8 @@
                 <span class="caption-title" id="easel-caption-title">चित्रांगण • Chitrangana</span>,
                 <span class="caption-medium" id="easel-caption-medium">oil on linen • 2026</span>
               </div>
-              <div class="easel-dots" id="easel-dots" role="tablist" aria-label="Atelier artwork collection slides"></div>
+              <div class="easel-dots" id="easel-dots" role="tablist" aria-label="Atelier artwork collection slides">
+              </div>
             </div>
 
           </div>
@@ -204,7 +206,7 @@
     <!-- SOUNDTRACK LEDGER: Minimalist Tracklist Table Matching Image 1 -->
     <section class="soundtrack-table-section" id="soundtrack" aria-label="Studio Soundtrack">
       <div class="stage-container">
-        
+
         <div class="soundtrack-table-wrapper">
           <table class="soundtrack-table">
             <thead>
@@ -232,7 +234,7 @@
           <span class="bar-title-en">Curated by the Hour</span>
           <span class="bar-current-hint" id="deck-session-name">Late Night Session (12:00 AM – 05:00 AM IST)</span>
         </div>
-        
+
         <div class="session-chips-scroll" id="session-chips-container">
           <!-- Populated dynamically via app.js -->
         </div>
@@ -242,23 +244,25 @@
     <!-- QUOTES SECTION: Bilingual Hindi & English Art Musings -->
     <section class="quotes-section" id="quotes" aria-label="Studio Quotes & Musings">
       <div class="stage-container">
-        
+
         <div class="quotes-card">
           <div class="quotes-card-top">
             <div class="quotes-badge">
-              <svg viewBox="0 0 24 24" class="quote-feather-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-                <path d="M2 2l7.586 7.586"/>
-                <circle cx="11" cy="11" r="2"/>
+              <svg viewBox="0 0 24 24" class="quote-feather-icon" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
+                <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                <path d="M2 2l7.586 7.586" />
+                <circle cx="11" cy="11" r="2" />
               </svg>
               <span>विचार • Studio Musings</span>
             </div>
 
             <button type="button" id="next-quote-btn" class="next-quote-action" aria-label="Next Quote">
               <span>Next Quote / नया विचार</span>
-              <svg viewBox="0 0 24 24" class="arrow-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+              <svg viewBox="0 0 24 24" class="arrow-icon" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
           </div>
@@ -297,18 +301,22 @@
 
         <!-- Creator & Social Links -->
         <div class="footer-links-col">
-          <a href="https://luciecreatives.in" target="_blank" rel="noopener noreferrer" class="footer-credit-link" title="Visit LucieCreatives">
+          <a href="https://luciecreatives.in" target="_blank" rel="noopener noreferrer" class="footer-credit-link"
+            title="Visit LucieCreatives">
             <span>Made by</span>
             <strong>LucieCreatives</strong>
-            <svg viewBox="0 0 24 24" class="footer-arrow-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M7 17L17 7M17 7H7M17 7V17"/>
+            <svg viewBox="0 0 24 24" class="footer-arrow-icon" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
           </a>
 
           <span class="footer-dot-separator" aria-hidden="true">·</span>
 
-          <a href="https://www.instagram.com/chitraam_artt_?rpxt=ZjllNjZ4a3BrMXVv" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Follow Chittram on Instagram (@chitraam_artt_)">
-            <svg viewBox="0 0 24 24" class="footer-insta-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <a href="https://www.instagram.com/chitraam_artt_?rpxt=ZjllNjZ4a3BrMXVv" target="_blank"
+            rel="noopener noreferrer" class="footer-social-link" title="Follow Chittram on Instagram (@chitraam_artt_)">
+            <svg viewBox="0 0 24 24" class="footer-insta-icon" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
               <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
               <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -341,4 +349,5 @@
   <!-- Application Script -->
   <script src="app.js"></script>
 </body>
+
 </html>
