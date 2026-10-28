@@ -17,6 +17,7 @@ const SESSIONS = [
     tagline: 'Two brushes moving under the quiet hum of the studio lamp.',
     cue: '3 AM • City lights blinking outside, smudged colors, quiet melodies',
     image: 'assets/scenes/late-night.jpg',
+    audioSrc: 'assets/audio/session-late-night.wav',
     palette: ['#f2b451', '#426bb3', '#d96347', '#8e58bd', '#f7efe6'],
     playlist: [
       {
@@ -76,6 +77,7 @@ const SESSIONS = [
     tagline: '5:30 AM. First light through mist. Sitting cross-legged with sketchpads.',
     cue: '5:30 AM • First purple rays through arches, coffee steam, quiet pencil lines',
     image: 'assets/scenes/dawn.jpg',
+    audioSrc: 'assets/audio/session-dawn.wav',
     palette: ['#e69885', '#b499db', '#8ab8d6', '#f3d5b5', '#ffffff'],
     playlist: [
       {
@@ -135,6 +137,7 @@ const SESSIONS = [
     tagline: 'Bright sunlight on monstera leaves. Laughter, charcoal dust, and fresh chai.',
     cue: 'Morning • Sunbeams on the portrait easel, fresh adrak chai, upbeat strumming',
     image: 'assets/scenes/morning.jpg',
+    audioSrc: 'assets/audio/session-morning.wav',
     palette: ['#e27b4b', '#48b888', '#f3a15b', '#3d789e', '#f7efe6'],
     playlist: [
       {
@@ -194,6 +197,7 @@ const SESSIONS = [
     tagline: 'Paint on our cheeks. Sun through blinds. Carefree laughter on a giant canvas.',
     cue: 'Afternoon • Acrylic tubes in every shade, playful paint fights, golden classics',
     image: 'assets/scenes/afternoon.jpg',
+    audioSrc: 'assets/audio/session-afternoon.wav',
     palette: ['#e5a338', '#df6948', '#349b8c', '#e7c062', '#f7efe6'],
     playlist: [
       {
@@ -253,6 +257,7 @@ const SESSIONS = [
     tagline: 'Sunset in amber and honey. Side by side at the easel.',
     cue: 'Golden Hour • Long golden rays, warming the turntable, honeyed harmonies',
     image: 'assets/scenes/golden-hour.jpg',
+    audioSrc: 'assets/audio/session-golden-hour.wav',
     palette: ['#f59733', '#d64620', '#dd7355', '#f3eece', '#f0c482'],
     playlist: [
       {
@@ -312,6 +317,7 @@ const SESSIONS = [
     tagline: 'Rain trickling down the glass. Warm floor lamps casting soft shadows.',
     cue: 'Dusk • Watercolors on floor cushions, rain-soaked ballads, indigo twilight',
     image: 'assets/scenes/dusk.jpg',
+    audioSrc: 'assets/audio/session-dusk.wav',
     palette: ['#df9b42', '#6c08ad', '#3c58df', '#ee1e7c', '#f7efe6'],
     playlist: [
       {
@@ -371,6 +377,7 @@ const SESSIONS = [
     tagline: 'Fairy lights overhead. Acoustic guitar chords. Painting till late.',
     cue: 'Night • Skyline twinkling outside, acoustic guitar between brushstrokes, celebrating art',
     image: 'assets/scenes/night.jpg',
+    audioSrc: 'assets/audio/session-night.wav',
     palette: ['#f2b544', '#dd3442', '#3fbcd6', '#9ed2d4', '#ffffff'],
     playlist: [
       {
@@ -455,6 +462,9 @@ const state = {
 };
 
 const el = {
+  // Persistent Studio HTML5 Audio Player
+  studioAudio: document.getElementById('studio-audio'),
+
   // Masthead
   liveIstClock: document.getElementById('live-ist-clock'),
   mastheadSessionTitle: document.getElementById('masthead-session-title'),
@@ -591,6 +601,14 @@ function transitionArt(imgUrl) {
   activeArtIsNext = !activeArtIsNext;
 }
 
+function getTrackAudioSrc(track, session) {
+  if (track && track.audioSrc) return track.audioSrc;
+  if (session && session.audioSrc) return session.audioSrc;
+  const sess = session || state.currentSession;
+  const id = sess ? sess.id : 'late-night';
+  return `assets/audio/session-${id}.wav`;
+}
+
 function setSession(session, isManual = false) {
   if (state.currentSession && state.currentSession.id === session.id && !isManual) {
     return;
@@ -614,9 +632,7 @@ function setSession(session, isManual = false) {
   renderTrackInfo();
   updateSessionsGrid();
 
-  if (state.ytReady && state.ytPlayer) {
-    loadTrack();
-  }
+  loadTrack(state.isPlaying);
 }
 
 function renderPaletteSwatches(palette) {
@@ -681,39 +697,46 @@ function updatePlayState(playing) {
 }
 
 function getCurrentPlaybackTime() {
-  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getCurrentTime === 'function') {
-    return state.ytPlayer.getCurrentTime() || 0;
+  if (el.studioAudio && !isNaN(el.studioAudio.currentTime)) {
+    return el.studioAudio.currentTime || 0;
   }
   return 0;
 }
 
 function getCurrentPlaybackDuration() {
-  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getDuration === 'function') {
-    return state.ytPlayer.getDuration() || 0;
+  if (el.studioAudio && !isNaN(el.studioAudio.duration) && isFinite(el.studioAudio.duration)) {
+    return el.studioAudio.duration || 0;
   }
   return 0;
 }
 
 function seekToTime(seconds) {
-  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.seekTo === 'function') {
-    state.ytPlayer.seekTo(seconds, true);
+  if (el.studioAudio && !isNaN(seconds)) {
+    const dur = getCurrentPlaybackDuration();
+    el.studioAudio.currentTime = Math.max(0, Math.min(dur > 0 ? dur : 99999, seconds));
   }
+  updateTrackProgressDisplay();
   updateMediaSessionPositionState();
+}
+
+function updateTrackProgressDisplay() {
+  const cur = getCurrentPlaybackTime();
+  const dur = getCurrentPlaybackDuration();
+  el.deckTimeCurrent.textContent = formatMinutesSeconds(cur);
+  el.deckTimeDuration.textContent = formatMinutesSeconds(dur);
+  if (dur > 0) {
+    const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
+    el.trackScrubFill.style.width = `${pct}%`;
+  }
 }
 
 function startTrackProgress() {
   stopTrackProgress();
+  updateTrackProgressDisplay();
   state.progressTimer = setInterval(() => {
-    const cur = getCurrentPlaybackTime();
-    const dur = getCurrentPlaybackDuration();
-    el.deckTimeCurrent.textContent = formatMinutesSeconds(cur);
-    el.deckTimeDuration.textContent = formatMinutesSeconds(dur);
-    if (dur > 0) {
-      const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
-      el.trackScrubFill.style.width = `${pct}%`;
-    }
+    updateTrackProgressDisplay();
     updateMediaSessionPositionState();
-  }, 400);
+  }, 350);
 }
 
 function stopTrackProgress() {
@@ -803,12 +826,7 @@ function initMediaSessionHandlers() {
   });
 
   safeSet('stop', () => {
-    state.userPaused = true;
-    if (state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
-      state.ytPlayer.pauseVideo();
-      updatePlayState(false);
-      releaseWakeLock();
-    }
+    pausePlayback();
   });
 }
 
@@ -858,78 +876,46 @@ function updateMediaSessionPositionState() {
 
 function setAppVolume(volumePct) {
   state.volume = Math.max(0, Math.min(100, volumePct));
-  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.setVolume === 'function') {
-    state.ytPlayer.setVolume(state.isMuted ? 0 : state.volume);
+  if (el.studioAudio) {
+    el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
   }
   updateAmbienceLevels();
   updateMuteIcons();
 }
 
-function initYouTube() {
-  window.onYouTubeIframeAPIReady = () => {
-    const track = state.playlist[state.currentTrackIndex];
-    state.ytPlayer = new YT.Player('yt-player-slot', {
-      height: '200',
-      width: '200',
-      videoId: track ? track.videoId : 'Il7Nv270zNk',
-      playerVars: {
-        autoplay: 1,
-        controls: 0,
-        disablekb: 1,
-        enablejsapi: 1,
-        fs: 0,
-        iv_load_policy: 3,
-        modestbranding: 1,
-        playsinline: 1,
-        rel: 0,
-        loop: 1
-      },
-      events: {
-        onReady: (event) => {
-          state.ytReady = true;
-          event.target.setVolume(state.volume);
-          try {
-            event.target.unMute();
-            event.target.playVideo();
-          } catch (e) {
-            console.log('Autoplay restriction:', e);
-          }
-          setTimeout(() => {
-            if (state.ytPlayer && state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-              state.ytPlayer.mute();
-              state.ytPlayer.playVideo();
-              state.isMuted = true;
-              el.unmuteNotice.classList.remove('hidden');
-            }
-          }, 1500);
-        },
-        onStateChange: (event) => {
-          if (event.data === YT.PlayerState.PLAYING) {
-            state.userPaused = false;
-            updatePlayState(true);
-            el.unmuteNotice.classList.add('hidden');
-            requestWakeLock();
-          } else if (event.data === YT.PlayerState.PAUSED) {
-            if (state.userPaused) {
-              updatePlayState(false);
-              releaseWakeLock();
-            }
-          } else if (event.data === YT.PlayerState.ENDED) {
-            // Endless continuous loop to next track
-            playNext(true);
-          }
-        },
-        onError: () => {
-          // If a track encounters an error, auto-advance to keep loop alive
-          setTimeout(() => playNext(true), 500);
-        }
-      }
-    });
-  };
+function setupAudioElementListeners() {
+  if (!el.studioAudio) return;
 
-  const tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(tag);
+  el.studioAudio.addEventListener('timeupdate', () => {
+    updateTrackProgressDisplay();
+    updateMediaSessionPositionState();
+  });
+
+  el.studioAudio.addEventListener('durationchange', () => {
+    updateTrackProgressDisplay();
+    updateMediaSessionPositionState();
+  });
+
+  el.studioAudio.addEventListener('play', () => {
+    updatePlayState(true);
+  });
+
+  el.studioAudio.addEventListener('pause', () => {
+    if (state.userPaused) {
+      updatePlayState(false);
+    }
+  });
+
+  // Endless continuous loop across tracks
+  el.studioAudio.addEventListener('ended', () => {
+    playNext(true);
+  });
+
+  // Auto-recovery to keep radio playing if an audio file fails
+  el.studioAudio.addEventListener('error', (err) => {
+    console.warn('Track audio warning, recovering next track:', err);
+    setTimeout(() => playNext(true), 600);
+  });
 }
 
 function loadTrack(autoPlay = true) {
@@ -940,29 +926,34 @@ function loadTrack(autoPlay = true) {
   updateMediaSession(track);
   setupAudioSession();
 
-  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.loadVideoById === 'function') {
-    try {
-      if (autoPlay || state.isPlaying) {
-        state.userPaused = false;
-        state.ytPlayer.loadVideoById({
-          videoId: track.videoId,
-          startSeconds: 0
-        });
-        if (!state.isMuted) {
-          state.ytPlayer.unMute();
-          state.ytPlayer.setVolume(state.volume || 85);
-        }
-        state.ytPlayer.playVideo();
-        updatePlayState(true);
-        requestWakeLock();
-      } else {
-        state.ytPlayer.cueVideoById({
-          videoId: track.videoId,
-          startSeconds: 0
-        });
+  const audioSrc = getTrackAudioSrc(track, state.currentSession);
+  if (el.studioAudio) {
+    const currentSrc = el.studioAudio.getAttribute('src');
+    if (currentSrc !== audioSrc) {
+      el.studioAudio.src = audioSrc;
+      el.studioAudio.load();
+    }
+    el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
+    el.studioAudio.muted = state.isMuted;
+
+    if (autoPlay || state.isPlaying) {
+      state.userPaused = false;
+      const playPromise = el.studioAudio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            updatePlayState(true);
+            requestWakeLock();
+            if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
+          })
+          .catch((err) => {
+            console.warn('Playback deferred until user interaction:', err);
+            if (el.unmuteNotice) el.unmuteNotice.classList.remove('hidden');
+            updatePlayState(false);
+          });
       }
-    } catch (err) {
-      console.warn('Track load failed:', err);
+    } else {
+      updatePlayState(false);
     }
   }
 }
@@ -992,30 +983,41 @@ function startPlaybackWithSound() {
   initMediaSessionHandlers();
   requestWakeLock();
 
-  if (state.ytPlayer && state.ytReady) {
-    try {
-      state.ytPlayer.unMute();
-      state.ytPlayer.setVolume(state.volume);
-      state.ytPlayer.playVideo();
-    } catch (e) {
-      console.warn('Playback error:', e);
+  const track = state.playlist[state.currentTrackIndex];
+  const audioSrc = getTrackAudioSrc(track, state.currentSession);
+
+  if (el.studioAudio) {
+    const currentSrc = el.studioAudio.getAttribute('src');
+    if (!currentSrc || currentSrc !== audioSrc) {
+      el.studioAudio.src = audioSrc;
+      el.studioAudio.load();
+    }
+    el.studioAudio.muted = false;
+    el.studioAudio.volume = state.volume / 100;
+
+    const playPromise = el.studioAudio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          updatePlayState(true);
+        })
+        .catch((err) => {
+          console.warn('Playback error:', err);
+        });
     }
   }
 
-  el.unmuteNotice.classList.add('hidden');
+  if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
   updateMuteIcons();
   updatePlayState(true);
 
-  const track = state.playlist[state.currentTrackIndex];
   if (track) updateMediaSession(track);
 }
 
 function pausePlayback() {
   state.userPaused = true;
-  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
-    try {
-      state.ytPlayer.pauseVideo();
-    } catch (e) {}
+  if (el.studioAudio) {
+    el.studioAudio.pause();
   }
   updatePlayState(false);
   releaseWakeLock();
@@ -1463,17 +1465,11 @@ function setupDeckControls() {
     if (!rainGain) setupAmbience();
     initMediaSessionHandlers();
 
-    if (state.ytPlayer && state.ytReady) {
-      try {
-        state.ytPlayer.unMute();
-        state.ytPlayer.setVolume(state.volume || 85);
-        state.isMuted = false;
-        state.isAudioUnlocked = true;
-        if (state.isPlaying) {
-          state.ytPlayer.playVideo();
-        }
-        updateMuteIcons();
-      } catch (e) {}
+    if (el.studioAudio && !state.isAudioUnlocked) {
+      state.isAudioUnlocked = true;
+      if (state.isPlaying && el.studioAudio.paused) {
+        el.studioAudio.play().catch(() => {});
+      }
     }
   }
 
@@ -1486,25 +1482,14 @@ function setupDeckControls() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       // Screen locked or tab backgrounded:
-      // If currently playing, attempt to ensure playback continues
-      if (state.isPlaying && !state.userPaused && state.ytPlayer && state.ytReady) {
-        setTimeout(() => {
-          try {
-            if (state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-              state.ytPlayer.playVideo();
-            }
-          } catch (e) {}
-        }, 150);
-      }
+      // Audio playback continues uninterrupted via persistent HTML5 <audio> and AVAudioSessionCategoryPlayback
     } else {
       // Screen unlocked or tab returned to foreground:
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume().catch(() => {});
       }
-      if (state.isPlaying && !state.userPaused && state.ytPlayer && state.ytReady) {
-        try {
-          state.ytPlayer.playVideo();
-        } catch (e) {}
+      if (state.isPlaying && !state.userPaused && el.studioAudio && el.studioAudio.paused) {
+        el.studioAudio.play().catch(() => {});
         requestWakeLock();
         updatePlayState(true);
       }
@@ -1515,10 +1500,8 @@ function setupDeckControls() {
     if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume().catch(() => {});
     }
-    if (state.isPlaying && !state.userPaused && state.ytPlayer && state.ytReady) {
-      try {
-        state.ytPlayer.playVideo();
-      } catch (e) {}
+    if (state.isPlaying && !state.userPaused && el.studioAudio && el.studioAudio.paused) {
+      el.studioAudio.play().catch(() => {});
       requestWakeLock();
     }
   });
@@ -1563,6 +1546,7 @@ function init() {
   renderSoundtrackSection();
   initCanvasSplatter();
   setupDeckControls();
+  setupAudioElementListeners();
   setupAudioSession();
   initMediaSessionHandlers();
 
@@ -1591,8 +1575,6 @@ function init() {
     state.artistsCount = Math.max(16, Math.min(42, state.artistsCount + delta));
     el.liveArtistsCount.textContent = state.artistsCount;
   }, 9000);
-
-  initYouTube();
 }
 
 window.addEventListener('DOMContentLoaded', init);
