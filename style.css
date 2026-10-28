@@ -596,6 +596,33 @@ a {
   color: var(--art-terracotta);
 }
 
+.audio-engine-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(72, 184, 136, 0.16);
+  color: #1a744e;
+  border: 1px solid rgba(72, 184, 136, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ledger-audio-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(72, 184, 136, 0.15);
+  color: #48b888;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 .linen-mood-cue {
   font-size: 0.72rem;
   color: #685970;

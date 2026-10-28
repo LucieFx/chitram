@@ -21,6 +21,7 @@ const SESSIONS = [
     playlist: [
       {
         videoId: 'Il7Nv270zNk',
+        audioSrc: 'assets/audio/chitram-studio-sample.wav',
         title: 'cold/mess',
         artist: 'Prateek Kuhad',
         album: 'cold/mess EP',
@@ -438,6 +439,10 @@ const state = {
   artistsCount: 24,
   paintMode: true,
 
+  // Audio Engine & Mode (iOS / Android Lock Screen & Background Audio)
+  audioMode: 'youtube', // 'native' | 'youtube'
+  isAudioUnlocked: false,
+
   // YouTube
   ytPlayer: null,
   ytReady: false,
@@ -451,6 +456,9 @@ const state = {
 };
 
 const el = {
+  // Persistent Native Audio Element
+  studioAudio: document.getElementById('studio-audio'),
+
   // Masthead
   liveIstClock: document.getElementById('live-ist-clock'),
   mastheadSessionTitle: document.getElementById('masthead-session-title'),
@@ -475,6 +483,7 @@ const el = {
 
   // Linen Track Card
   deckMoodCue: document.getElementById('deck-mood-cue'),
+  audioEngineBadge: document.getElementById('audio-engine-badge'),
   deckTrackTitle: document.getElementById('deck-track-title'),
   deckTrackArtist: document.getElementById('deck-track-artist'),
   deckTrackAlbum: document.getElementById('deck-track-album'),
@@ -626,7 +635,7 @@ function renderPaletteSwatches(palette) {
 }
 
 function renderTrackInfo() {
-  const track = state.playlist[state.currentTrackIndex] || state.currentSession.playlist[0];
+  const track = state.playlist[state.currentTrackIndex] || (state.currentSession ? state.currentSession.playlist[0] : null);
   if (!track) return;
 
   el.deckTrackTitle.textContent = track.title;
@@ -638,6 +647,22 @@ function renderTrackInfo() {
   el.trackScrubFill.style.width = '0%';
   el.deckTimeCurrent.textContent = '0:00';
   el.deckTimeDuration.textContent = '0:00';
+
+  if (el.audioEngineBadge) {
+    if (track.audioSrc) {
+      el.audioEngineBadge.textContent = '● Lock Screen Audio Active';
+      el.audioEngineBadge.title = 'Native audio active: plays continuously through Lock Screen and Control Center';
+      el.audioEngineBadge.style.color = '#1a744e';
+      el.audioEngineBadge.style.borderColor = 'rgba(72, 184, 136, 0.4)';
+    } else {
+      el.audioEngineBadge.textContent = '● Lock Screen Ready';
+      el.audioEngineBadge.title = 'MediaSession active on Lock Screen; ambient soundscapes play in background';
+      el.audioEngineBadge.style.color = '#b07936';
+      el.audioEngineBadge.style.borderColor = 'rgba(242, 180, 81, 0.4)';
+    }
+  }
+
+  updateMediaSession(track);
 }
 
 function updatePlayState(playing) {
@@ -658,21 +683,55 @@ function updatePlayState(playing) {
     el.turntableTonearm.classList.remove('playing');
     stopTrackProgress();
   }
+
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+    } catch (e) {}
+  }
+}
+
+function getCurrentPlaybackTime() {
+  if (state.audioMode === 'native' && el.studioAudio) {
+    return el.studioAudio.currentTime || 0;
+  }
+  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getCurrentTime === 'function') {
+    return state.ytPlayer.getCurrentTime() || 0;
+  }
+  return 0;
+}
+
+function getCurrentPlaybackDuration() {
+  if (state.audioMode === 'native' && el.studioAudio) {
+    return el.studioAudio.duration || 0;
+  }
+  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getDuration === 'function') {
+    return state.ytPlayer.getDuration() || 0;
+  }
+  return 0;
+}
+
+function seekToTime(seconds) {
+  if (state.audioMode === 'native' && el.studioAudio) {
+    el.studioAudio.currentTime = seconds;
+  } else if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.seekTo === 'function') {
+    state.ytPlayer.seekTo(seconds, true);
+  }
+  updateMediaSessionPositionState();
 }
 
 function startTrackProgress() {
   stopTrackProgress();
   state.progressTimer = setInterval(() => {
-    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.getCurrentTime === 'function') {
-      const cur = state.ytPlayer.getCurrentTime() || 0;
-      const dur = state.ytPlayer.getDuration() || 0;
-      el.deckTimeCurrent.textContent = formatMinutesSeconds(cur);
-      el.deckTimeDuration.textContent = formatMinutesSeconds(dur);
-      if (dur > 0) {
-        const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
-        el.trackScrubFill.style.width = `${pct}%`;
-      }
+    const cur = getCurrentPlaybackTime();
+    const dur = getCurrentPlaybackDuration();
+    el.deckTimeCurrent.textContent = formatMinutesSeconds(cur);
+    el.deckTimeDuration.textContent = formatMinutesSeconds(dur);
+    if (dur > 0) {
+      const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
+      el.trackScrubFill.style.width = `${pct}%`;
     }
+    updateMediaSessionPositionState();
   }, 400);
 }
 
@@ -684,14 +743,159 @@ function stopTrackProgress() {
 }
 
 // ==========================================================================
-// 5. YOUTUBE IFRAME INTEGRATION
+// 5. UNIFIED AUDIO ENGINE & MEDIA SESSION (iOS & Android Lock Screen & Background)
 // ==========================================================================
+const SILENT_AUDIO_URI = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+
+function setupAudioSession() {
+  if ('audioSession' in navigator) {
+    try {
+      navigator.audioSession.type = 'playback';
+    } catch (err) {
+      console.warn('AudioSession setup warning:', err);
+    }
+  }
+}
+
+function initMediaSessionHandlers() {
+  if (!('mediaSession' in navigator)) return;
+
+  const safeSet = (act, fn) => {
+    try {
+      navigator.mediaSession.setActionHandler(act, fn);
+    } catch (e) {}
+  };
+
+  safeSet('play', () => {
+    if (!state.isPlaying) togglePlay();
+  });
+  safeSet('pause', () => {
+    if (state.isPlaying) togglePlay();
+  });
+  safeSet('previoustrack', () => {
+    playPrev();
+  });
+  safeSet('nexttrack', () => {
+    playNext();
+  });
+  safeSet('seekto', (details) => {
+    if (details.seekTime !== undefined) {
+      seekToTime(details.seekTime);
+    }
+  });
+  safeSet('seekbackward', (details) => {
+    const cur = getCurrentPlaybackTime();
+    seekToTime(Math.max(0, cur - (details.seekOffset || 10)));
+  });
+  safeSet('seekforward', (details) => {
+    const cur = getCurrentPlaybackTime();
+    const dur = getCurrentPlaybackDuration();
+    seekToTime(Math.min(dur || 99999, cur + (details.seekOffset || 10)));
+  });
+  safeSet('stop', () => {
+    if (state.isPlaying) togglePlay();
+  });
+}
+
+function updateMediaSession(track) {
+  if (!('mediaSession' in navigator) || !track) return;
+
+  const session = state.currentSession || findSessionForHour(getLiveKolkataHour());
+  let artworkUrl = '';
+  try {
+    artworkUrl = new URL(session.image, window.location.href).href;
+  } catch (e) {
+    artworkUrl = session.image;
+  }
+
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title,
+      artist: track.artist,
+      album: `${track.album || session.labelEn} • चित्रम् Atelier Radio`,
+      artwork: [
+        { src: artworkUrl, sizes: '512x512', type: 'image/jpeg' },
+        { src: artworkUrl, sizes: '256x256', type: 'image/jpeg' },
+        { src: artworkUrl, sizes: '128x128', type: 'image/jpeg' }
+      ]
+    });
+    navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
+    updateMediaSessionPositionState();
+  } catch (err) {
+    console.warn('MediaSession metadata error:', err);
+  }
+}
+
+function updateMediaSessionPositionState() {
+  if (!('mediaSession' in navigator) || typeof navigator.mediaSession.setPositionState !== 'function') return;
+  try {
+    const dur = getCurrentPlaybackDuration();
+    const pos = getCurrentPlaybackTime();
+    if (dur > 0 && pos >= 0 && pos <= dur) {
+      navigator.mediaSession.setPositionState({
+        duration: dur,
+        playbackRate: 1,
+        position: pos
+      });
+    }
+  } catch (e) {}
+}
+
+function setAppVolume(volumePct) {
+  state.volume = Math.max(0, Math.min(100, volumePct));
+  const volRatio = state.isMuted ? 0 : (state.volume / 100);
+
+  if (el.studioAudio && state.audioMode === 'native') {
+    el.studioAudio.volume = volRatio;
+  }
+  if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.setVolume === 'function') {
+    state.ytPlayer.setVolume(state.isMuted ? 0 : state.volume);
+  }
+
+  updateAmbienceLevels();
+  updateMuteIcons();
+}
+
+function initStudioAudioElement() {
+  if (!el.studioAudio) return;
+
+  el.studioAudio.addEventListener('ended', () => {
+    if (state.audioMode === 'native') {
+      playNext();
+    }
+  });
+
+  el.studioAudio.addEventListener('play', () => {
+    if (state.audioMode === 'native') {
+      updatePlayState(true);
+    }
+  });
+
+  el.studioAudio.addEventListener('pause', () => {
+    if (state.audioMode === 'native' && !el.studioAudio.seeking) {
+      updatePlayState(false);
+    }
+  });
+
+  el.studioAudio.addEventListener('error', (e) => {
+    if (state.audioMode === 'native') {
+      console.warn('Native audio playback failed, falling back to YouTube companion:', e);
+      state.audioMode = 'youtube';
+      const track = state.playlist[state.currentTrackIndex];
+      if (track && state.ytPlayer && state.ytReady) {
+        state.ytPlayer.loadVideoById(track.videoId);
+      }
+    }
+  });
+}
+
 function initYouTube() {
   window.onYouTubeIframeAPIReady = () => {
+    const track = state.playlist[state.currentTrackIndex];
     state.ytPlayer = new YT.Player('yt-player-slot', {
       height: '1',
       width: '1',
-      videoId: state.playlist[state.currentTrackIndex]?.videoId || 'Il7Nv270zNk',
+      videoId: (track && !track.audioSrc) ? track.videoId : 'Il7Nv270zNk',
       playerVars: {
         autoplay: 1,
         controls: 0,
@@ -708,13 +912,15 @@ function initYouTube() {
           state.ytReady = true;
           event.target.setVolume(state.volume);
           try {
-            event.target.unMute();
-            event.target.playVideo();
+            if (state.audioMode !== 'native') {
+              event.target.unMute();
+              event.target.playVideo();
+            }
           } catch (e) {
             console.log('Autoplay restriction:', e);
           }
           setTimeout(() => {
-            if (state.ytPlayer && state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+            if (state.ytPlayer && state.audioMode !== 'native' && state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
               state.ytPlayer.mute();
               state.ytPlayer.playVideo();
               state.isMuted = true;
@@ -723,6 +929,7 @@ function initYouTube() {
           }, 1500);
         },
         onStateChange: (event) => {
+          if (state.audioMode === 'native') return;
           if (event.data === YT.PlayerState.PLAYING) {
             updatePlayState(true);
             el.unmuteNotice.classList.add('hidden');
@@ -733,7 +940,9 @@ function initYouTube() {
           }
         },
         onError: () => {
-          playNext();
+          if (state.audioMode !== 'native') {
+            playNext();
+          }
         }
       }
     });
@@ -746,14 +955,58 @@ function initYouTube() {
 
 function loadTrack() {
   const track = state.playlist[state.currentTrackIndex];
-  if (!track || !state.ytPlayer) return;
+  if (!track) return;
 
   renderTrackInfo();
-  try {
-    state.ytPlayer.loadVideoById(track.videoId);
-    updatePlayState(true);
-  } catch (err) {
-    console.warn('Track load failed:', err);
+  updateMediaSession(track);
+  setupAudioSession();
+
+  if (track.audioSrc && el.studioAudio) {
+    // --- NATIVE HIGH-FIDELITY AUDIO ENGINE (iOS & Android Lock Screen & Background Audio) ---
+    state.audioMode = 'native';
+
+    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
+      try { state.ytPlayer.pauseVideo(); } catch (e) {}
+    }
+
+    el.studioAudio.loop = false;
+    if (el.studioAudio.src !== track.audioSrc) {
+      el.studioAudio.src = track.audioSrc;
+    }
+    el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
+
+    const playPromise = el.studioAudio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        updatePlayState(true);
+      }).catch(err => {
+        console.warn('Native audio play error:', err);
+        updatePlayState(false);
+      });
+    }
+  } else {
+    // --- YOUTUBE COMPANION + PERSISTENT BACKGROUND AUDIO ANCHOR ---
+    state.audioMode = 'youtube';
+
+    // Keep the audio element active with silent loop carrier to maintain iOS/Android audio session
+    // This keeps Web Audio Ambience alive in background and keeps the Lock Screen MediaSession widget active!
+    if (el.studioAudio) {
+      if (el.studioAudio.src !== SILENT_AUDIO_URI) {
+        el.studioAudio.src = SILENT_AUDIO_URI;
+      }
+      el.studioAudio.loop = true;
+      el.studioAudio.volume = 0.01;
+      el.studioAudio.play().catch(() => {});
+    }
+
+    if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.loadVideoById === 'function') {
+      try {
+        state.ytPlayer.loadVideoById(track.videoId);
+        updatePlayState(true);
+      } catch (err) {
+        console.warn('Track load failed:', err);
+      }
+    }
   }
 }
 
@@ -768,14 +1021,43 @@ function playPrev() {
 }
 
 function togglePlay() {
-  if (!state.ytPlayer || !state.ytReady) return;
+  setupAudioSession();
+  initAudioContext();
+  if (!state.isAudioUnlocked) unlockAudio();
+
+  const track = state.playlist[state.currentTrackIndex];
+
   if (state.isPlaying) {
-    state.ytPlayer.pauseVideo();
+    // PAUSE
+    if (state.audioMode === 'native') {
+      if (el.studioAudio) el.studioAudio.pause();
+    } else {
+      if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.pauseVideo === 'function') {
+        state.ytPlayer.pauseVideo();
+      }
+      if (el.studioAudio) el.studioAudio.pause();
+    }
     updatePlayState(false);
   } else {
-    state.ytPlayer.playVideo();
+    // PLAY
+    if (state.audioMode === 'native') {
+      if (el.studioAudio) {
+        el.studioAudio.play().catch(e => console.warn('Audio play error:', e));
+      }
+    } else {
+      if (el.studioAudio) {
+        if (el.studioAudio.src !== SILENT_AUDIO_URI) el.studioAudio.src = SILENT_AUDIO_URI;
+        el.studioAudio.loop = true;
+        el.studioAudio.play().catch(() => {});
+      }
+      if (state.ytPlayer && state.ytReady && typeof state.ytPlayer.playVideo === 'function') {
+        state.ytPlayer.playVideo();
+      }
+    }
     updatePlayState(true);
   }
+
+  if (track) updateMediaSession(track);
 }
 
 // ==========================================================================
@@ -1073,7 +1355,7 @@ function renderSoundtrackTracks() {
 
     card.innerHTML = `
       <div class="ledger-text">
-        <h3 class="ledger-title">${track.title}</h3>
+        <h3 class="ledger-title">${track.title}${track.audioSrc ? '<span class="ledger-audio-badge" title="High-fidelity direct audio with Lock-Screen playback">Lock-Screen Audio</span>' : ''}</h3>
         <p class="ledger-credits">${track.artist} — ${track.album}, ${track.year}</p>
         <p class="ledger-blurb">"${track.blurb}"</p>
       </div>
@@ -1121,38 +1403,32 @@ function setupDeckControls() {
   });
 
   el.deckVolSlider.addEventListener('input', (e) => {
-    state.volume = parseInt(e.target.value, 10);
-    if (state.ytPlayer && state.ytReady) {
-      state.ytPlayer.setVolume(state.volume);
-      if (state.volume > 0 && state.isMuted) {
-        state.ytPlayer.unMute();
-        state.isMuted = false;
-      }
+    const vol = parseInt(e.target.value, 10);
+    setAppVolume(vol);
+    if (vol > 0 && state.isMuted) {
+      state.isMuted = false;
+      updateMuteIcons();
     }
-    updateMuteIcons();
   });
 
   el.deckMuteBtn.addEventListener('click', () => {
-    if (!state.ytPlayer || !state.ytReady) return;
+    state.isMuted = !state.isMuted;
+    setAppVolume(state.volume || 85);
     if (state.isMuted) {
-      state.ytPlayer.unMute();
-      state.isMuted = false;
-      el.deckVolSlider.value = state.volume || 85;
-    } else {
-      state.ytPlayer.mute();
-      state.isMuted = true;
       el.deckVolSlider.value = 0;
+    } else {
+      el.deckVolSlider.value = state.volume || 85;
     }
     updateMuteIcons();
   });
 
-  // Track scrub click
+  // Track scrub click (Unified native audio & YouTube)
   el.trackScrubContainer.addEventListener('click', (e) => {
-    if (!state.ytPlayer || !state.ytReady || typeof state.ytPlayer.getDuration !== 'function') return;
+    const dur = getCurrentPlaybackDuration();
+    if (dur <= 0) return;
     const rect = el.trackScrubContainer.getBoundingClientRect();
     const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    const dur = state.ytPlayer.getDuration();
-    if (dur > 0) state.ytPlayer.seekTo(dur * ratio, true);
+    seekToTime(dur * ratio);
   });
 
   // Resync Clock button
@@ -1207,22 +1483,75 @@ function setupDeckControls() {
     updateAmbienceLevels();
   });
 
-  // Audio policy unlock
-  const unlockAudio = () => {
-    if (state.ytPlayer && state.ytReady) {
-      state.ytPlayer.unMute();
-      el.unmuteNotice.classList.add('hidden');
-      state.isMuted = false;
-      updateMuteIcons();
+  // Audio policy unlock for iOS / Android user gesture compliance
+  function unlockAudio() {
+    if (state.isAudioUnlocked) return;
+    state.isAudioUnlocked = true;
+
+    setupAudioSession();
+    initAudioContext();
+    initMediaSessionHandlers();
+
+    if (el.studioAudio) {
+      if (state.audioMode === 'native') {
+        el.studioAudio.play().catch(() => {});
+      } else {
+        if (el.studioAudio.src !== SILENT_AUDIO_URI) el.studioAudio.src = SILENT_AUDIO_URI;
+        el.studioAudio.loop = true;
+        el.studioAudio.volume = 0.01;
+        el.studioAudio.play().catch(() => {});
+      }
     }
-    ['pointerdown', 'keydown', 'touchend'].forEach(evt => {
+
+    if (state.ytPlayer && state.ytReady) {
+      try {
+        state.ytPlayer.unMute();
+        state.isMuted = false;
+      } catch (e) {}
+    }
+
+    el.unmuteNotice.classList.add('hidden');
+    updateMuteIcons();
+
+    ['pointerdown', 'keydown', 'touchend', 'click'].forEach(evt => {
       document.removeEventListener(evt, unlockAudio, { capture: true });
     });
-  };
-  ['pointerdown', 'keydown', 'touchend'].forEach(evt => {
+  }
+
+  ['pointerdown', 'keydown', 'touchend', 'click'].forEach(evt => {
     document.addEventListener(evt, unlockAudio, { capture: true });
   });
   el.unmuteStartBtn.addEventListener('click', unlockAudio);
+
+  // Background & Lock Screen audio persistence & recovery
+  document.addEventListener('visibilitychange', () => {
+    // CRITICAL: NEVER pause audio when document becomes hidden!
+    if (!document.hidden) {
+      // User unlocked screen or returned to tab:
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+
+      if (state.isPlaying) {
+        if (state.audioMode === 'native' && el.studioAudio && el.studioAudio.paused) {
+          el.studioAudio.play().catch(() => {});
+        } else if (state.audioMode === 'youtube' && state.ytPlayer && state.ytReady) {
+          try {
+            if (state.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+              state.ytPlayer.playVideo();
+            }
+          } catch (e) {}
+        }
+        updatePlayState(true);
+      }
+    }
+  });
+
+  window.addEventListener('pageshow', () => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  });
 
   // Global Keyboard Shortcuts
   window.addEventListener('keydown', (e) => {
@@ -1264,6 +1593,9 @@ function init() {
   renderSoundtrackSection();
   initCanvasSplatter();
   setupDeckControls();
+  initStudioAudioElement();
+  setupAudioSession();
+  initMediaSessionHandlers();
 
   // Initial Session
   const liveSession = findSessionForHour(getLiveKolkataHour());

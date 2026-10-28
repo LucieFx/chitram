@@ -8,6 +8,8 @@
   <meta name="description" content="An intimate bohemian art studio radio for painters, illustrators, and sketchers. The light, the mood, and the melodies flow with every hour of the creative day.">
   <meta name="theme-color" content="#120e17">
   <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <!-- OpenGraph -->
   <meta property="og:title" content="चित्रम् • CHITRAM — Music for Drawing & Painting">
@@ -41,6 +43,9 @@
 <body>
   <!-- Hidden YouTube Player Container -->
   <div id="yt-player-slot" aria-hidden="true"></div>
+
+  <!-- Persistent Native Audio Element for iOS/Android Background & Lock Screen Playback -->
+  <audio id="studio-audio" playsinline preload="auto" crossorigin="anonymous" aria-hidden="true" style="display:none;"></audio>
 
   <!-- Studio Backdrop Artwork Layer with Smooth Crossfade -->
   <div class="studio-backdrop" id="studio-backdrop">
@@ -182,6 +187,7 @@
             <div class="track-linen-card">
               <div class="linen-header">
                 <span class="linen-tag">STUDIO ROTATION</span>
+                <span class="audio-engine-badge" id="audio-engine-badge" title="Lock Screen Media Controls & Background Audio are enabled">● Lock Screen Ready</span>
                 <span class="linen-mood-cue" id="deck-mood-cue">3 AM • Smudged colors on skin, warm chai, quiet melodies</span>
               </div>
 
