@@ -109,27 +109,6 @@
             </p>
           </div>
 
-          <!-- Official YouTube Live Music Video Embed (Deluxe Mini-Player) -->
-          <div class="deck-yt-card" id="deck-yt-card">
-            <div class="deck-yt-viewport">
-              <div id="yt-player-slot"></div>
-            </div>
-            <div class="deck-yt-bar">
-              <div class="deck-yt-badge">
-                <span class="deck-yt-live-dot"></span>
-                <span class="deck-yt-badge-text">Original YouTube Audio Engine</span>
-              </div>
-              <a id="deck-yt-out" href="https://www.youtube.com/watch?v=W4rSh7R-KP8" target="_blank"
-                rel="noopener noreferrer" class="deck-yt-link" title="Open in YouTube">
-                <svg viewBox="0 0 24 24" class="yt-icon" fill="currentColor" aria-hidden="true">
-                  <path
-                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                </svg>
-                <span>Watch</span>
-              </a>
-            </div>
-          </div>
-
           <!-- Transport Controls Row -->
           <div class="player-controls-row">
             <!-- Prev Button -->
@@ -323,10 +302,26 @@
             </svg>
             <span>@chitraam_artt_</span>
           </a>
+
+          <span class="footer-dot-separator" aria-hidden="true">·</span>
+
+          <a id="deck-yt-out" href="https://www.youtube.com" target="_blank"
+            rel="noopener noreferrer" class="footer-yt-credit-link" title="Audio streamed via YouTube API (Opens track in YouTube)">
+            <svg viewBox="0 0 24 24" class="footer-yt-icon" fill="currentColor" aria-hidden="true">
+              <path
+                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+            <span>Audio via YouTube</span>
+          </a>
         </div>
       </div>
     </footer>
 
+  </div>
+
+  <!-- Persistent YouTube Audio Engine (Hidden from visual stage, plays audio continuously) -->
+  <div class="yt-hidden-audio-engine" aria-hidden="true">
+    <div id="yt-player-slot"></div>
   </div>
 
   <!-- Legacy element placeholders for backwards compatibility in case needed -->

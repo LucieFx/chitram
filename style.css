@@ -81,34 +81,21 @@ body {
   background-size: 24px 24px;
 }
 
-/* Deluxe YouTube Mini-Player Card */
-.deck-yt-card {
-  margin: 1.15rem 0 0.85rem 0;
-  width: 100%;
-  max-width: 320px;
-  background: var(--paper-white);
-  border: 1px solid rgba(24, 21, 26, 0.08);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px -2px rgba(45, 34, 25, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.deck-yt-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(45, 34, 25, 0.12);
-}
-
-.deck-yt-viewport {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #0d0c0e;
+/* Persistent YouTube Audio Engine (Hidden from visual stage, plays audio continuously) */
+.yt-hidden-audio-engine {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 240px;
+  height: 140px;
+  opacity: 0.001;
+  pointer-events: none;
+  z-index: -9999;
   overflow: hidden;
 }
 
-.deck-yt-viewport iframe,
-.deck-yt-viewport #yt-player-slot {
+.yt-hidden-audio-engine iframe,
+.yt-hidden-audio-engine #yt-player-slot {
   position: absolute;
   top: 0;
   left: 0;
@@ -116,56 +103,6 @@ body {
   height: 100% !important;
   border: none;
   display: block;
-}
-
-.deck-yt-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.42rem 0.75rem;
-  font-size: 0.74rem;
-  background: #faf6f0;
-  border-top: 1px solid rgba(24, 21, 26, 0.06);
-}
-
-.deck-yt-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.deck-yt-live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #e53935;
-  display: inline-block;
-  animation: pulse-live 2s infinite ease-in-out;
-}
-
-.deck-yt-badge-text {
-  color: var(--ink-muted);
-  font-size: 0.73rem;
-  font-weight: 500;
-}
-
-.deck-yt-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: #c4302b;
-  font-weight: 600;
-  font-size: 0.73rem;
-  transition: opacity 0.2s;
-}
-
-.deck-yt-link:hover {
-  opacity: 0.8;
-}
-
-.deck-yt-link .yt-icon {
-  width: 14px;
-  height: 14px;
 }
 
 button {
@@ -1147,6 +1084,32 @@ a {
   stroke-width: 1.8;
 }
 
+.footer-yt-credit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--ink-secondary);
+  font-weight: 600;
+  transition: color 140ms ease;
+  text-decoration: none;
+}
+
+.footer-yt-credit-link:hover {
+  color: #ff0000;
+}
+
+.footer-yt-icon {
+  width: 17px;
+  height: 17px;
+  color: #c4302b;
+  flex-shrink: 0;
+  transition: color 140ms ease;
+}
+
+.footer-yt-credit-link:hover .footer-yt-icon {
+  color: #ff0000;
+}
+
 /* -------------------------------------------------------------
    10. RESPONSIVE DESIGN (Tablets, iPads & Mobile Devices)
    ------------------------------------------------------------- */
@@ -1280,11 +1243,6 @@ a {
   .player-left-col {
     text-align: center;
     align-items: center;
-  }
-
-  .deck-yt-card {
-    max-width: 280px;
-    margin: 0.85rem auto;
   }
 
   .studio-kicker-row {
