@@ -53,9 +53,6 @@
     <div class="canvas-scrim"></div>
   </div>
 
-  <!-- Interactive Watercolor Splatter Layer -->
-  <canvas id="splatter-canvas" aria-label="Interactive studio painting canvas"></canvas>
-
   <!-- Main Content Structure -->
   <div class="site-wrapper">
 
@@ -102,24 +99,6 @@
           <a href="#sessions" class="nav-link">Sessions</a>
           <a href="#manifesto" class="nav-link">The Studio</a>
           <a href="#soundtrack" class="nav-link">Soundtrack</a>
-          
-          <!-- Splatter Paint Brush Toggle -->
-          <button type="button" id="splatter-toggle-btn" class="studio-nav-btn active" title="Click anywhere to splatter paint on canvas">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-svg" aria-hidden="true">
-              <path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"/>
-              <path d="M9 8c-2 3-4 3.5-7 4l8 8c.5-3 1-5 4-7"/>
-            </svg>
-            <span class="nav-btn-text">Paint Brush</span>
-          </button>
-
-          <!-- Studio Ambience Button -->
-          <button type="button" id="ambience-modal-trigger" class="studio-nav-btn" aria-label="Open Studio Ambience Mixer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-svg" aria-hidden="true">
-              <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/>
-              <path d="M16 14v6m-4-4v6m-4-2v6"/>
-            </svg>
-            <span class="nav-btn-text">Ambience</span>
-          </button>
         </nav>
       </div>
     </header>
@@ -218,9 +197,6 @@
                 <a id="deck-yt-out" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="studio-link-btn">
                   Watch Recording on YouTube ↗
                 </a>
-                <button type="button" id="clear-splatter-btn" class="clear-paint-action" title="Clear watercolor splatters on canvas">
-                  Clear Canvas Splatters
-                </button>
               </div>
             </div>
 
@@ -383,68 +359,6 @@
     </footer>
 
   </div>
-
-  <!-- STUDIO AMBIENCE MODAL PANEL (Web Audio Synthesis) -->
-  <aside id="ambience-modal" class="ambience-modal hidden" aria-label="Studio Sound Ambience">
-    <div class="ambience-card">
-      <div class="ambience-card-header">
-        <div>
-          <h3 class="ambience-card-title">माहौल • Studio Ambience</h3>
-          <p class="ambience-card-sub">Synthesized offline acoustic textures to mix over your music</p>
-        </div>
-        <button type="button" id="ambience-modal-close" class="modal-close" aria-label="Close Ambience Panel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="close-svg" aria-hidden="true">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
-      <div class="ambience-channels">
-        <!-- Rain on Loft Window -->
-        <div class="ambience-channel">
-          <div class="channel-text">
-            <span class="channel-title">Rain on Loft Window</span>
-            <span class="channel-desc">Gentle raindrops trickling down the studio glass</span>
-          </div>
-          <div class="channel-control">
-            <input type="range" id="rain-range" min="0" max="100" value="35" class="sound-range" aria-label="Rain Sound Volume">
-            <span class="range-num" id="rain-num">35%</span>
-          </div>
-        </div>
-
-        <!-- Vinyl Turntable Needle Crackle -->
-        <div class="ambience-channel">
-          <div class="channel-text">
-            <span class="channel-title">Turntable Vinyl Crackle</span>
-            <span class="channel-desc">Warm 33 RPM needle pops and dust hiss</span>
-          </div>
-          <div class="channel-control">
-            <input type="range" id="vinyl-range" min="0" max="100" value="30" class="sound-range" aria-label="Vinyl Crackle Volume">
-            <span class="range-num" id="vinyl-num">30%</span>
-          </div>
-        </div>
-
-        <!-- Loft Fireplace & Night Hum -->
-        <div class="ambience-channel">
-          <div class="channel-text">
-            <span class="channel-title">Warm Loft Embers &amp; Air</span>
-            <span class="channel-desc">Soft room resonance and nighttime calm</span>
-          </div>
-          <div class="channel-control">
-            <input type="range" id="hum-range" min="0" max="100" value="25" class="sound-range" aria-label="Night Hum Volume">
-            <span class="range-num" id="hum-num">25%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="ambience-footer">
-        <button type="button" id="ambience-master-btn" class="solid-btn">Disable Ambience</button>
-      </div>
-    </div>
-  </aside>
-
-  <div id="modal-dimmer" class="modal-dimmer hidden" aria-hidden="true"></div>
 
   <!-- JavaScript Application -->
   <script src="app.js"></script>

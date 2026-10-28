@@ -452,13 +452,7 @@ const state = {
   // YouTube
   ytPlayer: null,
   ytReady: false,
-  progressTimer: null,
-
-  // Web Audio Ambience
-  ambienceEnabled: true,
-  rainLevel: 0.35,
-  vinylLevel: 0.30,
-  humLevel: 0.25
+  progressTimer: null
 };
 
 const el = {
@@ -469,10 +463,6 @@ const el = {
   liveIstClock: document.getElementById('live-ist-clock'),
   mastheadSessionTitle: document.getElementById('masthead-session-title'),
   liveArtistsCount: document.getElementById('live-artists-count'),
-  ambienceModalTrigger: document.getElementById('ambience-modal-trigger'),
-  splatterToggleBtn: document.getElementById('splatter-toggle-btn'),
-  splatterCanvas: document.getElementById('splatter-canvas'),
-  clearSplatterBtn: document.getElementById('clear-splatter-btn'),
 
   // Backdrop
   artCurrent: document.getElementById('backdrop-image-current'),
@@ -518,19 +508,7 @@ const el = {
   clockResyncBtn: document.getElementById('clock-resync-btn'),
   resyncClockReadout: document.getElementById('resync-clock-readout'),
   soundtrackTabs: document.getElementById('soundtrack-tabs'),
-  soundtrackLedger: document.getElementById('soundtrack-ledger'),
-
-  // Ambience Modal
-  ambienceModal: document.getElementById('ambience-modal'),
-  ambienceModalClose: document.getElementById('ambience-modal-close'),
-  modalDimmer: document.getElementById('modal-dimmer'),
-  ambienceMasterBtn: document.getElementById('ambience-master-btn'),
-  rainRange: document.getElementById('rain-range'),
-  rainNum: document.getElementById('rain-num'),
-  vinylRange: document.getElementById('vinyl-range'),
-  vinylNum: document.getElementById('vinyl-num'),
-  humRange: document.getElementById('hum-range'),
-  humNum: document.getElementById('hum-num')
+  soundtrackLedger: document.getElementById('soundtrack-ledger')
 };
 
 // ==========================================================================
@@ -879,7 +857,6 @@ function setAppVolume(volumePct) {
   if (el.studioAudio) {
     el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
   }
-  updateAmbienceLevels();
   updateMuteIcons();
 }
 
@@ -1036,188 +1013,7 @@ function togglePlay() {
 }
 
 // ==========================================================================
-// 6. SYNTHESIZED WEB AUDIO AMBIENCE (Offline, Zero Network)
-// ==========================================================================
-let audioCtx = null;
-let rainGain = null;
-let vinylGain = null;
-let humGain = null;
-let crackleTimer = null;
-
-function initAudioContext() {
-  if (!audioCtx) {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AudioContext();
-  }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-}
-
-function setupAmbience() {
-  try {
-    initAudioContext();
-
-    // 1. Rain on Loft Window
-    const bufSize = audioCtx.sampleRate * 2;
-    const noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
-    const data = noiseBuf.getChannelData(0);
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-    for (let i = 0; i < bufSize; i++) {
-      const white = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + white * 0.0555;
-      b1 = 0.99332 * b1 + white * 0.0750;
-      b2 = 0.96900 * b2 + white * 0.1538;
-      b3 = 0.86650 * b3 + white * 0.3104;
-      b4 = 0.55000 * b4 + white * 0.5329;
-      b5 = -0.7616 * b5 - white * 0.0168;
-      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
-      b6 = white * 0.1159;
-    }
-
-    const rainSrc = audioCtx.createBufferSource();
-    rainSrc.buffer = noiseBuf;
-    rainSrc.loop = true;
-
-    const rainFilter = audioCtx.createBiquadFilter();
-    rainFilter.type = 'lowpass';
-    rainFilter.frequency.value = 850;
-
-    rainGain = audioCtx.createGain();
-    rainGain.gain.value = state.ambienceEnabled ? state.rainLevel * 0.3 : 0;
-
-    rainSrc.connect(rainFilter);
-    rainFilter.connect(rainGain);
-    rainGain.connect(audioCtx.destination);
-    rainSrc.start(0);
-
-    // 2. Turntable Vinyl Crackle
-    vinylGain = audioCtx.createGain();
-    vinylGain.gain.value = state.ambienceEnabled ? state.vinylLevel * 0.35 : 0;
-    vinylGain.connect(audioCtx.destination);
-
-    function crackle() {
-      if (!audioCtx || !state.ambienceEnabled) return;
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = 140 + Math.random() * 500;
-
-      const now = audioCtx.currentTime;
-      g.gain.setValueAtTime(0.018 * state.vinylLevel, now);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
-
-      osc.connect(g);
-      g.connect(vinylGain);
-      osc.start(now);
-      osc.stop(now + 0.035);
-
-      crackleTimer = setTimeout(crackle, 80 + Math.random() * 320);
-    }
-    crackle();
-
-    // 3. Loft Fireplace & Night Hum
-    humGain = audioCtx.createGain();
-    humGain.gain.value = state.ambienceEnabled ? state.humLevel * 0.25 : 0;
-    humGain.connect(audioCtx.destination);
-
-    const humOsc = audioCtx.createOscillator();
-    humOsc.type = 'sine';
-    humOsc.frequency.value = 65;
-    humOsc.connect(humGain);
-    humOsc.start(0);
-
-  } catch (err) {
-    console.warn('Ambience engine notice:', err);
-  }
-}
-
-function updateAmbienceLevels() {
-  if (!audioCtx) return;
-  const on = state.ambienceEnabled ? 1 : 0;
-  if (rainGain) rainGain.gain.value = on * state.rainLevel * 0.3;
-  if (vinylGain) vinylGain.gain.value = on * state.vinylLevel * 0.35;
-  if (humGain) humGain.gain.value = on * state.humLevel * 0.25;
-}
-
-// ==========================================================================
-// 7. INTERACTIVE WATERCOLOR SPLATTER ENGINE (For Drawing Artists)
-// ==========================================================================
-let canvas, ctx;
-let isPainting = false;
-
-function initCanvasSplatter() {
-  canvas = el.splatterCanvas;
-  ctx = canvas.getContext('2d');
-
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  function addStroke(x, y) {
-    if (!state.paintMode) return;
-    const palette = state.currentSession ? state.currentSession.palette : ['#f2b451', '#e27b4b', '#d84a38'];
-    const color = palette[Math.floor(Math.random() * palette.length)];
-    const radius = 8 + Math.random() * 28;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.globalAlpha = 0.35 + Math.random() * 0.4;
-    ctx.fill();
-
-    // Watercolor splatter satellite droplets
-    const droplets = 3 + Math.floor(Math.random() * 5);
-    for (let i = 0; i < droplets; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = radius + Math.random() * 40;
-      const dropRadius = 1.5 + Math.random() * 3.5;
-      ctx.beginPath();
-      ctx.arc(x + Math.cos(angle) * dist, y + Math.sin(angle) * dist, dropRadius, 0, Math.PI * 2);
-      ctx.globalAlpha = 0.25 + Math.random() * 0.4;
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  canvas.addEventListener('mousedown', (e) => {
-    isPainting = true;
-    addStroke(e.clientX, e.clientY);
-  });
-  window.addEventListener('mouseup', () => { isPainting = false; });
-  canvas.addEventListener('mousemove', (e) => {
-    if (isPainting) addStroke(e.clientX, e.clientY);
-  });
-
-  // Touch Support for tablets / iPads
-  canvas.addEventListener('touchstart', (e) => {
-    isPainting = true;
-    if (e.touches[0]) addStroke(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-  window.addEventListener('touchend', () => { isPainting = false; });
-  canvas.addEventListener('touchmove', (e) => {
-    if (isPainting && e.touches[0]) {
-      addStroke(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: true });
-
-  el.clearSplatterBtn.addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  });
-
-  el.splatterToggleBtn.addEventListener('click', () => {
-    state.paintMode = !state.paintMode;
-    el.splatterToggleBtn.classList.toggle('active', state.paintMode);
-    el.splatterCanvas.classList.toggle('disabled', !state.paintMode);
-  });
-}
-
-// ==========================================================================
-// 8. SESSIONS & SOUNDTRACK ARCHIVE (Editorial Broadsheet)
+// 6. SESSIONS & SOUNDTRACK ARCHIVE (Editorial Broadsheet)
 // ==========================================================================
 function renderSessionsSection() {
   el.sessionsGrid.innerHTML = '';
@@ -1424,41 +1220,6 @@ function setupDeckControls() {
     });
   });
 
-  // Ambience Modal
-  el.ambienceModalTrigger.addEventListener('click', () => {
-    el.ambienceModal.classList.remove('hidden');
-    el.modalDimmer.classList.remove('hidden');
-    initAudioContext();
-    if (!rainGain) setupAmbience();
-  });
-
-  el.ambienceModalClose.addEventListener('click', closeAmbienceModal);
-  el.modalDimmer.addEventListener('click', closeAmbienceModal);
-
-  el.ambienceMasterBtn.addEventListener('click', () => {
-    state.ambienceEnabled = !state.ambienceEnabled;
-    el.ambienceMasterBtn.textContent = state.ambienceEnabled ? 'Disable Ambience' : 'Enable Ambience';
-    updateAmbienceLevels();
-  });
-
-  el.rainRange.addEventListener('input', (e) => {
-    state.rainLevel = parseInt(e.target.value, 10) / 100;
-    el.rainNum.textContent = `${e.target.value}%`;
-    updateAmbienceLevels();
-  });
-
-  el.vinylRange.addEventListener('input', (e) => {
-    state.vinylLevel = parseInt(e.target.value, 10) / 100;
-    el.vinylNum.textContent = `${e.target.value}%`;
-    updateAmbienceLevels();
-  });
-
-  el.humRange.addEventListener('input', (e) => {
-    state.humLevel = parseInt(e.target.value, 10) / 100;
-    el.humNum.textContent = `${e.target.value}%`;
-    updateAmbienceLevels();
-  });
-
   // Audio policy unlock for iOS / Android user gesture compliance
   function unlockAudio() {
     setupAudioSession();
@@ -1492,9 +1253,6 @@ function setupDeckControls() {
         requestWakeLock();
         updatePlayState(true);
       }
-      if (audioCtx && audioCtx.state === 'suspended' && state.ambienceEnabled) {
-        audioCtx.resume().catch(() => {});
-      }
     }
   });
 
@@ -1502,9 +1260,6 @@ function setupDeckControls() {
     if (state.isPlaying && !state.userPaused && el.studioAudio && el.studioAudio.paused) {
       el.studioAudio.play().catch(() => {});
       requestWakeLock();
-    }
-    if (audioCtx && audioCtx.state === 'suspended' && state.ambienceEnabled) {
-      audioCtx.resume().catch(() => {});
     }
   });
 
@@ -1522,8 +1277,6 @@ function setupDeckControls() {
       playPrev();
     } else if (e.key === 'm' || e.key === 'M') {
       el.deckMuteBtn.click();
-    } else if (e.key === 'Escape') {
-      closeAmbienceModal();
     }
   });
 }
@@ -1538,15 +1291,9 @@ function updateMuteIcons() {
   }
 }
 
-function closeAmbienceModal() {
-  el.ambienceModal.classList.add('hidden');
-  el.modalDimmer.classList.add('hidden');
-}
-
 function init() {
   renderSessionsSection();
   renderSoundtrackSection();
-  initCanvasSplatter();
   setupDeckControls();
   setupAudioElementListeners();
   setupAudioSession();

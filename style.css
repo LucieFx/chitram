@@ -114,20 +114,6 @@ a {
   background: radial-gradient(circle at 50% 30%, rgba(18, 14, 23, 0.45) 0%, rgba(18, 14, 23, 0.95) 85%); /* taste-skill-ignore */
 }
 
-/* Interactive Splatter Canvas */
-#splatter-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: auto;
-  cursor: crosshair;
-}
-
-#splatter-canvas.disabled {
-  pointer-events: none;
-  cursor: default;
-}
-
 .site-wrapper {
   position: relative;
   z-index: 2;
@@ -719,21 +705,6 @@ a {
   text-underline-offset: 3px;
 }
 
-.clear-paint-action {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #6c5a77;
-  border: 1px solid #c9bfb5;
-  padding: 0.2rem 0.65rem;
-  border-radius: 3px;
-  transition: background 120ms ease;
-}
-
-.clear-paint-action:hover {
-  background: #ede3d7;
-  color: #1a1420;
-}
-
 /* Mechanical Keypad */
 .console-keypad {
   background: #18121f;
@@ -1193,157 +1164,12 @@ a {
   color: var(--art-brass);
 }
 
-/* -------------------------------------------------------------
-   10. AMBIENCE MODAL
-   ------------------------------------------------------------- */
-.modal-dimmer {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  background: rgba(10, 8, 14, 0.7);
-}
-
-.ambience-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-  width: 90%;
-  max-width: 480px;
-}
-
-.ambience-card {
-  background: var(--art-panel);
-  border: 2px solid var(--art-border-bold);
-  border-radius: 8px;
-  padding: 1.75rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8); /* taste-skill-ignore */
-}
-
-.ambience-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid #33253e;
-  padding-bottom: 1rem;
-}
-
-.ambience-card-title {
-  font-family: var(--font-serif);
-  font-size: 1.35rem;
-  color: var(--art-linen);
-}
-
-.ambience-card-sub {
-  font-size: 0.75rem;
-  color: var(--art-linen-dim);
-  margin-top: 0.2rem;
-}
-
-.modal-close {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  background: rgba(247, 239, 230, 0.08);
-  color: var(--art-linen-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-svg {
-  width: 14px;
-  height: 14px;
-}
-
-.ambience-channels {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.ambience-channel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.channel-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.channel-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--art-linen);
-}
-
-.channel-desc {
-  font-size: 0.72rem;
-  color: var(--art-linen-dim);
-}
-
-.channel-control {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.sound-range {
-  flex: 1;
-  height: 4px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #0d0912;
-  border-radius: 2px;
-  outline: none;
-}
-
-.sound-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
-  background: var(--art-brass);
-  cursor: pointer;
-}
-
-.range-num {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--art-brass);
-  min-width: 32px;
-}
-
-.ambience-footer {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 2px solid #33253e;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.solid-btn {
-  background: var(--art-brass);
-  color: var(--art-ink);
-  font-weight: 700;
-  font-size: 0.75rem;
-  padding: 0.45rem 1rem;
-  border-radius: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 .hidden {
   display: none !important;
 }
 
 /* -------------------------------------------------------------
-   11. RESPONSIVE BREAKPOINTS
+   10. RESPONSIVE BREAKPOINTS
    ------------------------------------------------------------- */
 @media (max-width: 840px) {
   .console-body {
