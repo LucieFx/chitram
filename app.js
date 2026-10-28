@@ -1040,20 +1040,25 @@ function initYouTube() {
             acquireDualWakeLock();
             if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
           } else if (event.data === YT.PlayerState.PAUSED) {
+            if ('mediaSession' in navigator) {
+              try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {}
+            }
             if (state.userPaused) {
               updatePlayState(false);
             } else {
               // Involuntary pause caused by mobile OS screen dimming, brief notification, or audio focus flicker:
-              // Automatically resume playback so music NEVER stops unexpectedly!
-              clearTimeout(state.involuntaryPauseTimer);
-              state.involuntaryPauseTimer = setTimeout(() => {
-                if (!state.userPaused && state.isPlaying && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-                  try {
-                    state.ytPlayer.playVideo();
-                    acquireDualWakeLock();
-                  } catch (e) {}
-                }
-              }, 800);
+              // Only auto-resume if the document is still visible
+              if (!document.hidden) {
+                clearTimeout(state.involuntaryPauseTimer);
+                state.involuntaryPauseTimer = setTimeout(() => {
+                  if (!state.userPaused && state.isPlaying && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+                    try {
+                      state.ytPlayer.playVideo();
+                      acquireDualWakeLock();
+                    } catch (e) {}
+                  }
+                }, 800);
+              }
             }
           } else if (event.data === YT.PlayerState.ENDED) {
             // Real song finished 100%: automatically advance to next song!
@@ -1180,6 +1185,35 @@ function releaseWakeLock() {
   return releaseDualWakeLock();
 }
 
+// Silent Audio Anchor: keeps the mobile OS audio pipeline alive so the tab is never frozen
+const SILENT_AUDIO_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+
+function ensureBackgroundAudioKeeper() {
+  if (!el.studioAudio) return;
+  try {
+    if (!el.studioAudio.src || el.studioAudio.src === '' || el.studioAudio.src.indexOf('data:audio') === -1) {
+      el.studioAudio.src = SILENT_AUDIO_WAV;
+      el.studioAudio.loop = true;
+      el.studioAudio.volume = 0.01;
+      el.studioAudio.muted = false;
+    }
+    if (state.isPlaying && el.studioAudio.paused) {
+      const p = el.studioAudio.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {});
+      }
+    }
+  } catch (e) {}
+}
+
+function pauseBackgroundAudioKeeper() {
+  if (el.studioAudio && !el.studioAudio.paused) {
+    try {
+      el.studioAudio.pause();
+    } catch (e) {}
+  }
+}
+
 function setupAudioSession() {
   if ('audioSession' in navigator) {
     try {
@@ -1188,6 +1222,7 @@ function setupAudioSession() {
       console.warn('AudioSession setup warning:', err);
     }
   }
+  ensureBackgroundAudioKeeper();
 }
 
 function initMediaSessionHandlers() {
@@ -1241,13 +1276,23 @@ function updateMediaSession(track) {
   if (!('mediaSession' in navigator) || !track) return;
 
   const session = track.session || state.currentSession || findSessionForHour(getLiveKolkataHour());
-  const artData = ARTWORKS[state.currentArtworkIndex] || ARTWORKS[0];
-
-  let artworkUrl = '';
+  const ytThumb = track.videoId ? `https://img.youtube.com/vi/${track.videoId}/hqdefault.jpg` : '';
+  let sceneJpg = '';
   try {
-    artworkUrl = new URL(artData.src, window.location.href).href;
+    sceneJpg = new URL(session.image || 'assets/scenes/golden-hour.jpg', window.location.href).href;
   } catch (e) {
-    artworkUrl = artData.src;
+    sceneJpg = session.image || '';
+  }
+
+  const artworkList = [];
+  if (ytThumb) {
+    artworkList.push({ src: ytThumb, sizes: '512x512', type: 'image/jpeg' });
+    artworkList.push({ src: ytThumb, sizes: '256x256', type: 'image/jpeg' });
+    artworkList.push({ src: ytThumb, sizes: '128x128', type: 'image/jpeg' });
+  }
+  if (sceneJpg) {
+    artworkList.push({ src: sceneJpg, sizes: '512x512', type: 'image/jpeg' });
+    artworkList.push({ src: sceneJpg, sizes: '256x256', type: 'image/jpeg' });
   }
 
   try {
@@ -1255,11 +1300,7 @@ function updateMediaSession(track) {
       title: track.title,
       artist: track.artist,
       album: `${track.album || session.labelEn} • चित्रम् Chittram Studio Radio`,
-      artwork: [
-        { src: artworkUrl, sizes: '512x512', type: 'image/svg+xml' },
-        { src: artworkUrl, sizes: '256x256', type: 'image/svg+xml' },
-        { src: artworkUrl, sizes: '128x128', type: 'image/svg+xml' }
-      ]
+      artwork: artworkList
     });
     navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
     updateMediaSessionPositionState();
@@ -1335,13 +1376,9 @@ function loadTrack(autoPlay = true) {
     }
   }
 
-  // 2. Completely silence studioAudio so no ambient loops ever play over the music
-  if (el.studioAudio) {
-    try {
-      el.studioAudio.pause();
-      el.studioAudio.currentTime = 0;
-      el.studioAudio.removeAttribute('src');
-    } catch (e) {}
+  // 2. Maintain background audio keeper pipeline
+  if (autoPlay || state.isPlaying) {
+    ensureBackgroundAudioKeeper();
   }
 
   if (autoPlay) {
@@ -1441,13 +1478,8 @@ function startPlaybackWithSound() {
     state.isPlaying = true;
   }
 
-  // Ensure no ambient synth loops play over the real song
-  if (el.studioAudio) {
-    try {
-      el.studioAudio.pause();
-      el.studioAudio.removeAttribute('src');
-    } catch (e) {}
-  }
+  // Maintain background audio keeper pipeline
+  ensureBackgroundAudioKeeper();
 
   if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
   updateMuteIcons();
@@ -1463,9 +1495,7 @@ function pausePlayback() {
       state.ytPlayer.pauseVideo();
     } catch (e) {}
   }
-  if (el.studioAudio) {
-    el.studioAudio.pause();
-  }
+  pauseBackgroundAudioKeeper();
   updatePlayState(false);
   releaseWakeLock();
 }
@@ -1794,11 +1824,13 @@ function setupDeckControls() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       if (state.isPlaying && !state.userPaused) {
+        ensureBackgroundAudioKeeper();
         acquireDualWakeLock();
       }
     } else {
       if (state.isPlaying && !state.userPaused) {
         acquireDualWakeLock();
+        ensureBackgroundAudioKeeper();
         if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
           try { state.ytPlayer.playVideo(); } catch (e) {}
         }
