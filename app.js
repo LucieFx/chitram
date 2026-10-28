@@ -1836,8 +1836,11 @@ function renderSoundtrackTable() {
     tr.innerHTML = `
       <td class="col-num track-index-num">${index + 1}</td>
       <td class="col-title table-track-title">
-        <span>${track.title}</span>
-        ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+        <div class="title-with-wave">
+          <span class="table-title-text">${track.title}</span>
+          ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+        </div>
+        <span class="table-mobile-artist">${track.artist}</span>
       </td>
       <td class="col-artist table-track-artist">${track.artist}</td>
       <td class="col-time table-track-time">${track.duration || '4:00'}</td>
@@ -1871,8 +1874,11 @@ function updateSoundtrackTableActiveRow() {
 
     if (titleEl) {
       titleEl.innerHTML = `
-        <span>${track.title}</span>
-        ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+        <div class="title-with-wave">
+          <span class="table-title-text">${track.title}</span>
+          ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+        </div>
+        <span class="table-mobile-artist">${track.artist}</span>
       `;
     }
   });
