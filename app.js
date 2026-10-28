@@ -17,7 +17,7 @@ const SESSIONS = [
     tagline: 'Two brushes moving under the quiet hum of the studio lamp.',
     cue: '3 AM • City lights blinking outside, smudged colors, quiet melodies',
     image: 'assets/scenes/late-night.jpg',
-    audioSrc: 'assets/audio/session-late-night.wav',
+    audioSrc: 'assets/audio/session-late-night.mp3',
     palette: ['#f2b451', '#426bb3', '#d96347', '#8e58bd', '#f7efe6'],
     playlist: [
       {
@@ -77,7 +77,7 @@ const SESSIONS = [
     tagline: '5:30 AM. First light through mist. Sitting cross-legged with sketchpads.',
     cue: '5:30 AM • First purple rays through arches, coffee steam, quiet pencil lines',
     image: 'assets/scenes/dawn.jpg',
-    audioSrc: 'assets/audio/session-dawn.wav',
+    audioSrc: 'assets/audio/session-dawn.mp3',
     palette: ['#e69885', '#b499db', '#8ab8d6', '#f3d5b5', '#ffffff'],
     playlist: [
       {
@@ -137,7 +137,7 @@ const SESSIONS = [
     tagline: 'Bright sunlight on monstera leaves. Laughter, charcoal dust, and fresh chai.',
     cue: 'Morning • Sunbeams on the portrait easel, fresh adrak chai, upbeat strumming',
     image: 'assets/scenes/morning.jpg',
-    audioSrc: 'assets/audio/session-morning.wav',
+    audioSrc: 'assets/audio/session-morning.mp3',
     palette: ['#e27b4b', '#48b888', '#f3a15b', '#3d789e', '#f7efe6'],
     playlist: [
       {
@@ -197,7 +197,7 @@ const SESSIONS = [
     tagline: 'Paint on our cheeks. Sun through blinds. Carefree laughter on a giant canvas.',
     cue: 'Afternoon • Acrylic tubes in every shade, playful paint fights, golden classics',
     image: 'assets/scenes/afternoon.jpg',
-    audioSrc: 'assets/audio/session-afternoon.wav',
+    audioSrc: 'assets/audio/session-afternoon.mp3',
     palette: ['#e5a338', '#df6948', '#349b8c', '#e7c062', '#f7efe6'],
     playlist: [
       {
@@ -257,7 +257,7 @@ const SESSIONS = [
     tagline: 'Sunset in amber and honey. Side by side at the easel.',
     cue: 'Golden Hour • Long golden rays, warming the turntable, honeyed harmonies',
     image: 'assets/scenes/golden-hour.jpg',
-    audioSrc: 'assets/audio/session-golden-hour.wav',
+    audioSrc: 'assets/audio/session-golden-hour.mp3',
     palette: ['#f59733', '#d64620', '#dd7355', '#f3eece', '#f0c482'],
     playlist: [
       {
@@ -317,7 +317,7 @@ const SESSIONS = [
     tagline: 'Rain trickling down the glass. Warm floor lamps casting soft shadows.',
     cue: 'Dusk • Watercolors on floor cushions, rain-soaked ballads, indigo twilight',
     image: 'assets/scenes/dusk.jpg',
-    audioSrc: 'assets/audio/session-dusk.wav',
+    audioSrc: 'assets/audio/session-dusk.mp3',
     palette: ['#df9b42', '#6c08ad', '#3c58df', '#ee1e7c', '#f7efe6'],
     playlist: [
       {
@@ -377,7 +377,7 @@ const SESSIONS = [
     tagline: 'Fairy lights overhead. Acoustic guitar chords. Painting till late.',
     cue: 'Night • Skyline twinkling outside, acoustic guitar between brushstrokes, celebrating art',
     image: 'assets/scenes/night.jpg',
-    audioSrc: 'assets/audio/session-night.wav',
+    audioSrc: 'assets/audio/session-night.mp3',
     palette: ['#f2b544', '#dd3442', '#3fbcd6', '#9ed2d4', '#ffffff'],
     playlist: [
       {
@@ -606,7 +606,7 @@ function getTrackAudioSrc(track, session) {
   if (session && session.audioSrc) return session.audioSrc;
   const sess = session || state.currentSession;
   const id = sess ? sess.id : 'late-night';
-  return `assets/audio/session-${id}.wav`;
+  return `assets/audio/session-${id}.mp3`;
 }
 
 function setSession(session, isManual = false) {
@@ -886,6 +886,8 @@ function setAppVolume(volumePct) {
 function setupAudioElementListeners() {
   if (!el.studioAudio) return;
 
+  el.studioAudio.loop = true;
+
   el.studioAudio.addEventListener('timeupdate', () => {
     updateTrackProgressDisplay();
     updateMediaSessionPositionState();
@@ -903,6 +905,13 @@ function setupAudioElementListeners() {
   el.studioAudio.addEventListener('pause', () => {
     if (state.userPaused) {
       updatePlayState(false);
+    } else if (state.isPlaying) {
+      // Interruption recovery: if paused by system without user intention, resume
+      setTimeout(() => {
+        if (!state.userPaused && state.isPlaying && el.studioAudio.paused) {
+          el.studioAudio.play().catch(() => {});
+        }
+      }, 50);
     }
   });
 
@@ -974,12 +983,6 @@ function startPlaybackWithSound() {
   if (!state.volume || state.volume === 0) state.volume = 85;
 
   setupAudioSession();
-  initAudioContext();
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume().catch(() => {});
-  }
-  if (!rainGain) setupAmbience();
-
   initMediaSessionHandlers();
   requestWakeLock();
 
@@ -987,6 +990,7 @@ function startPlaybackWithSound() {
   const audioSrc = getTrackAudioSrc(track, state.currentSession);
 
   if (el.studioAudio) {
+    el.studioAudio.loop = true;
     const currentSrc = el.studioAudio.getAttribute('src');
     if (!currentSrc || currentSrc !== audioSrc) {
       el.studioAudio.src = audioSrc;
@@ -1458,11 +1462,6 @@ function setupDeckControls() {
   // Audio policy unlock for iOS / Android user gesture compliance
   function unlockAudio() {
     setupAudioSession();
-    initAudioContext();
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(() => {});
-    }
-    if (!rainGain) setupAmbience();
     initMediaSessionHandlers();
 
     if (el.studioAudio && !state.isAudioUnlocked) {
@@ -1482,27 +1481,30 @@ function setupDeckControls() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       // Screen locked or tab backgrounded:
-      // Audio playback continues uninterrupted via persistent HTML5 <audio> and AVAudioSessionCategoryPlayback
+      // Ensure audio element continues playing and is not paused by the lock transition
+      if (state.isPlaying && !state.userPaused && el.studioAudio && el.studioAudio.paused) {
+        el.studioAudio.play().catch(() => {});
+      }
     } else {
       // Screen unlocked or tab returned to foreground:
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-      }
       if (state.isPlaying && !state.userPaused && el.studioAudio && el.studioAudio.paused) {
         el.studioAudio.play().catch(() => {});
         requestWakeLock();
         updatePlayState(true);
       }
+      if (audioCtx && audioCtx.state === 'suspended' && state.ambienceEnabled) {
+        audioCtx.resume().catch(() => {});
+      }
     }
   });
 
   window.addEventListener('pageshow', () => {
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(() => {});
-    }
     if (state.isPlaying && !state.userPaused && el.studioAudio && el.studioAudio.paused) {
       el.studioAudio.play().catch(() => {});
       requestWakeLock();
+    }
+    if (audioCtx && audioCtx.state === 'suspended' && state.ambienceEnabled) {
+      audioCtx.resume().catch(() => {});
     }
   });
 
