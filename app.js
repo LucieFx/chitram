@@ -899,17 +899,23 @@ SESSIONS.forEach(sess => {
 // 2. CREATIVE ARTWORK & BILINGUAL QUOTES DATABASE
 // ==========================================================================
 const ARTWORKS = {
+  minimal: {
+    src: 'assets/scenes/minimal-canvas.png',
+    title: 'रूप विन्यास',
+    medium: 'oil on linen',
+    alt: 'Minimalist geometric composition in terracotta, indigo and warm ochre on linen canvas'
+  },
   beach: {
-    src: 'assets/scenes/artist-beach-easel.jpg',
-    title: 'लहरों का कैनवास (Ocean Horizon at Sunset)',
-    medium: 'oil on linen, 24" × 30"',
-    alt: 'Artist seen from behind seated on a wooden stool painting ocean waves on easel at golden hour sunset'
+    src: 'assets/scenes/minimal-canvas.png',
+    title: 'रूप विन्यास',
+    medium: 'oil on linen',
+    alt: 'Minimalist geometric composition in terracotta, indigo and warm ochre on linen canvas'
   },
   mountain: {
-    src: 'assets/scenes/artist-mountain-easel.jpg',
-    title: 'एकांत शिखर (Himalayan Sunrise Plein-Air)',
-    medium: 'oil on linen, 20" × 28"',
-    alt: 'Plein-air artist seen from behind painting misty mountain peaks on wooden easel at alpine sunrise'
+    src: 'assets/scenes/minimal-canvas.png',
+    title: 'रूप विन्यास',
+    medium: 'oil on linen',
+    alt: 'Minimalist geometric composition in terracotta, indigo and warm ochre on linen canvas'
   }
 };
 
@@ -987,7 +993,7 @@ const state = {
   isAudioUnlocked: false,
 
   // Artwork & Quotes
-  currentArtworkKey: 'beach',
+  currentArtworkKey: 'minimal',
   currentQuoteIndex: 0,
   progressTimer: null
 };

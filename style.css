@@ -540,9 +540,9 @@ a {
 
 .easel-painting-img {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 6 / 7;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center;
   border-radius: 2px;
   display: block;
 }
