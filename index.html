@@ -92,9 +92,9 @@
 
           <div class="studio-kicker-row">
             <span class="kicker-label">Now playing in the studio</span>
-            <div class="live-stream-badge" title="Live Continuous Stream — Plays uninterrupted on iOS Lock Screen">
+            <div class="live-stream-badge" title="Live Continuous Radio Stream — Plays uninterrupted on iOS Lock Screen">
               <span class="live-stream-dot"></span>
-              <span>Live Studio Radio • Lock-Screen Ready</span>
+              <span id="live-station-badge-text">Trending Hits India • Live</span>
             </div>
           </div>
 
@@ -115,9 +115,9 @@
 
           <!-- Transport Controls Row -->
           <div class="player-controls-row">
-            <!-- Prev Button -->
-            <button type="button" id="deck-prev-btn" class="control-btn prev-btn" aria-label="Previous Track"
-              title="Previous Track (Left Arrow)">
+            <!-- Prev Button: Switches to previous live station -->
+            <button type="button" id="deck-prev-btn" class="control-btn prev-btn" aria-label="Previous Live Station"
+              title="Previous Live Station (Left Arrow)">
               <svg viewBox="0 0 24 24" class="control-svg" aria-hidden="true">
                 <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
               </svg>
@@ -136,23 +136,23 @@
               <span class="sr-only" id="play-key-label">PLAY</span>
             </button>
 
-            <!-- Next Button -->
-            <button type="button" id="deck-next-btn" class="control-btn next-btn" aria-label="Next Track"
-              title="Next Track (Right Arrow)">
+            <!-- Next Button: Switches to next live station -->
+            <button type="button" id="deck-next-btn" class="control-btn next-btn" aria-label="Next Live Station"
+              title="Next Live Station (Right Arrow)">
               <svg viewBox="0 0 24 24" class="control-svg" aria-hidden="true">
                 <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z" />
               </svg>
             </button>
           </div>
 
-          <!-- Progress Scrub Rail & Timers -->
+          <!-- Progress Scrub Rail & Timers (Live Continuous Broadcast) -->
           <div class="scrub-section">
-            <div class="scrub-track-rail" id="track-scrub-container" title="Click to seek">
+            <div class="scrub-track-rail" id="track-scrub-container" title="Live Broadcast Stream">
               <div class="scrub-track-fill" id="track-scrub-fill"></div>
             </div>
             <div class="scrub-time-stamps">
-              <span class="time-elapsed" id="deck-time-current">0:00</span>
-              <span class="time-duration" id="deck-time-duration">0:00</span>
+              <span class="time-elapsed" id="deck-time-current">LIVE</span>
+              <span class="time-duration" id="deck-time-duration">ON AIR</span>
             </div>
           </div>
 
@@ -186,18 +186,18 @@
       </div>
     </main>
 
-    <!-- SOUNDTRACK LEDGER: Minimalist Tracklist Table Matching Image 1 -->
-    <section class="soundtrack-table-section" id="soundtrack" aria-label="Studio Soundtrack">
+    <!-- SOUNDTRACK LEDGER: Curated Live Studio Radio Stations -->
+    <section class="soundtrack-table-section" id="soundtrack" aria-label="Live Studio Stations">
       <div class="stage-container">
 
         <div class="soundtrack-table-wrapper">
           <table class="soundtrack-table">
             <thead>
               <tr>
-                <th class="col-num">#</th>
-                <th class="col-title">TITLE</th>
-                <th class="col-artist">ARTIST</th>
-                <th class="col-time">DURATION</th>
+                <th class="col-num">CH</th>
+                <th class="col-title">LIVE STATION & BROADCAST</th>
+                <th class="col-artist">GENRE / CURATION</th>
+                <th class="col-time">ON AIR</th>
               </tr>
             </thead>
             <tbody id="soundtrack-table-body">
@@ -209,13 +209,13 @@
       </div>
     </section>
 
-    <!-- SESSIONS SELECTOR BAR: Compact 7-Pahar Mood Switcher -->
-    <section class="sessions-bar-section" id="sessions" aria-label="Studio Sessions">
+    <!-- SESSIONS SELECTOR BAR: Curated Live Radio Stations Switcher -->
+    <section class="sessions-bar-section" id="sessions" aria-label="Studio Live Stations">
       <div class="stage-container">
         <div class="sessions-bar-header">
-          <span class="bar-title-hi">सात पहर</span>
-          <span class="bar-title-en">Curated by the Hour</span>
-          <span class="bar-current-hint" id="deck-session-name">Late Night Session (12:00 AM – 05:00 AM IST)</span>
+          <span class="bar-title-hi">लाइव स्टेशंस</span>
+          <span class="bar-title-en">Curated Live Radio Stations</span>
+          <span class="bar-current-hint" id="deck-session-name">Trending Hits India (24/7 Live Broadcast)</span>
         </div>
 
         <div class="session-chips-scroll" id="session-chips-container">

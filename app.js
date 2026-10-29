@@ -591,6 +591,76 @@ const SESSIONS = [
   }
 ];
 
+// Curated 24/7 Live Radio Channels (Verified CORS-enabled direct audio streams)
+const RADIO_STATIONS = [
+  {
+    id: 'trending-india',
+    channel: '01',
+    labelHi: 'ट्रेंडिंग भारत',
+    labelEn: 'Trending Hits India',
+    genre: 'Top 20 Bollywood & Viral Chartbusters',
+    tagline: 'Top chartbusters, viral hits, and fresh trending Indian pop streaming live.',
+    streamUrl: 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
+    image: 'assets/scenes/golden-hour.jpg',
+    slot: '24/7 Live Broadcast • India'
+  },
+  {
+    id: 'soulful-arijit',
+    channel: '02',
+    labelHi: 'अरिजीत और रूह',
+    labelEn: 'Soulful & Arijit',
+    genre: 'Arijit Singh & Soulful Melodies',
+    tagline: 'Deep vocals, acoustic strums, and meditative studio melodies.',
+    streamUrl: 'https://drive.uber.radio/uber/bollywoodaruitsingh/icecast.audio',
+    image: 'assets/scenes/late-night.jpg',
+    slot: '24/7 Live Broadcast • Studio'
+  },
+  {
+    id: 'romantic-love',
+    channel: '03',
+    labelHi: 'इश्क़ और सुकून',
+    labelEn: 'Romantic Acoustic',
+    genre: 'Heartfelt Love & Acoustic Duets',
+    tagline: 'Tender guitar strings, romantic duets, and heartfelt acoustic confessions.',
+    streamUrl: 'https://drive.uber.radio/uber/bollywoodlove/icecast.audio',
+    image: 'assets/scenes/dusk.jpg',
+    slot: '24/7 Live Broadcast • Romance'
+  },
+  {
+    id: 'golden-2010s',
+    channel: '04',
+    labelHi: 'स्वर्ण दशक',
+    labelEn: '2010s Golden Era',
+    genre: 'Modern Classics & Anthems',
+    tagline: 'Apna Time Aayega, Lootera, Wake Up Sid and timeless 2010s masterpieces.',
+    streamUrl: 'https://drive.uber.radio/uber/bollywood2010s/icecast.audio',
+    image: 'assets/scenes/afternoon.jpg',
+    slot: '24/7 Live Broadcast • Nostalgia'
+  },
+  {
+    id: 'studio-upbeat',
+    channel: '05',
+    labelHi: 'उत्साह और ताल',
+    labelEn: 'Studio Rhythms',
+    genre: 'High-Energy & Celebratory Beats',
+    tagline: 'Uplifting studio rhythms and energetic compositions to spark creativity.',
+    streamUrl: 'https://drive.uber.radio/uber/bollywooddance/icecast.audio',
+    image: 'assets/scenes/morning.jpg',
+    slot: '24/7 Live Broadcast • Upbeat'
+  },
+  {
+    id: 'dusk-melodies',
+    channel: '06',
+    labelHi: 'शाम की चाय',
+    labelEn: 'Dusk Melodies',
+    genre: 'Evergreen Radio Classics',
+    tagline: 'Gentle golden melodies, sitar-piano blends, and peaceful dusk listening.',
+    streamUrl: 'https://puma.streemlion.com:4130/stream',
+    image: 'assets/scenes/dawn.jpg',
+    slot: '24/7 Live Broadcast • Evergreen'
+  }
+];
+
 const SESSION_STREAMS = {
   'late-night': 'https://drive.uber.radio/uber/bollywoodaruitsingh/icecast.audio',
   'dawn': 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
@@ -693,6 +763,8 @@ const QUOTES = [
 // 3. STATE & DOM REFERENCES
 // ==========================================================================
 const state = {
+  currentStationIndex: 0,
+  currentStation: null,
   currentSession: null,
   activeSessionId: null,
   isLiveTime: true,
@@ -704,12 +776,8 @@ const state = {
   isShuffle: false,
   volume: 85,
   artistsCount: 1853,
-  tableFilterMode: 'session', // 'session' or 'all'
-  activeAudioEngine: 'direct', // 'direct' (HTML5 audio) or 'youtube'
-
-  // YouTube Iframe Engine
-  ytPlayer: null,
-  ytReady: false,
+  tableFilterMode: 'stations', // 'stations' (Live Stations Guide)
+  activeAudioEngine: 'direct', // Pure HTML5 audio
 
   // Non-repeating History
   playedHistory: new Set(),
@@ -722,7 +790,8 @@ const state = {
   currentArtworkIndex: 0,
   artworkTimer: null,
   currentQuoteIndex: 0,
-  progressTimer: null
+  progressTimer: null,
+  metadataPollTimer: null
 };
 
 const el = {
@@ -897,24 +966,31 @@ function setSession(session, isManual = false) {
 }
 
 function renderTrackInfo() {
-  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || ALL_TRACKS[0];
-  if (!track) return;
+  const currentStation = state.currentStation || RADIO_STATIONS[0];
+  const track = state.currentPlayingTrack || (currentStation ? {
+    title: currentStation.labelEn,
+    artist: currentStation.genre,
+    album: `${currentStation.labelEn} • Live Radio`,
+    blurb: currentStation.tagline,
+    duration: 'LIVE'
+  } : ALL_TRACKS[0]);
 
+  if (!track) return;
   state.currentPlayingTrack = track;
 
   if (el.deckTrackTitle) el.deckTrackTitle.textContent = track.title;
   if (el.deckTrackArtist) el.deckTrackArtist.textContent = track.artist;
-  if (el.deckTrackAlbum) el.deckTrackAlbum.textContent = `${track.album}, ${track.year}`;
-  if (el.deckTrackBlurb) el.deckTrackBlurb.textContent = track.blurb;
-  if (el.deckYtOut) el.deckYtOut.href = `https://www.youtube.com/watch?v=${track.videoId}`;
+  if (el.deckTrackAlbum) el.deckTrackAlbum.textContent = track.album || `${currentStation.labelEn} • Live Studio Radio`;
+  if (el.deckTrackBlurb) el.deckTrackBlurb.textContent = track.blurb || currentStation.tagline;
+  if (el.deckYtOut) el.deckYtOut.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.artist)}`;
 
-  if (el.trackScrubFill) el.trackScrubFill.style.width = '0%';
-  if (el.deckTimeCurrent) el.deckTimeCurrent.textContent = '0:00';
-  if (el.deckTimeDuration) el.deckTimeDuration.textContent = track.duration || '4:00';
+  if (el.trackScrubFill) el.trackScrubFill.style.width = '100%';
+  if (el.deckTimeCurrent) el.deckTimeCurrent.textContent = 'LIVE';
+  if (el.deckTimeDuration) el.deckTimeDuration.textContent = 'ON AIR';
 
-  if (el.queueStatusBadge) {
-    const unplayedCount = ALL_TRACKS.length - state.playedHistory.size;
-    el.queueStatusBadge.innerHTML = `<span class="badge-dot ochre"></span> ${unplayedCount} New Songs in Queue`;
+  const liveBadgeText = document.getElementById('live-station-badge-text');
+  if (liveBadgeText && currentStation) {
+    liveBadgeText.textContent = `${currentStation.labelEn} • Live`;
   }
 
   updateMediaSession(track);
@@ -1177,31 +1253,26 @@ function initMediaSessionHandlers() {
 function updateMediaSession(track) {
   if (!('mediaSession' in navigator) || !track) return;
 
-  const session = track.session || state.currentSession || findSessionForHour(getLiveKolkataHour());
-  const ytThumb = track.videoId ? `https://img.youtube.com/vi/${track.videoId}/hqdefault.jpg` : '';
+  const currentStation = state.currentStation || RADIO_STATIONS[0];
   let sceneJpg = '';
   try {
-    sceneJpg = new URL(session.image || 'assets/scenes/golden-hour.jpg', window.location.href).href;
+    sceneJpg = new URL(currentStation.image || 'assets/scenes/golden-hour.jpg', window.location.href).href;
   } catch (e) {
-    sceneJpg = session.image || '';
+    sceneJpg = currentStation.image || '';
   }
 
   const artworkList = [];
-  if (ytThumb) {
-    artworkList.push({ src: ytThumb, sizes: '512x512', type: 'image/jpeg' });
-    artworkList.push({ src: ytThumb, sizes: '256x256', type: 'image/jpeg' });
-    artworkList.push({ src: ytThumb, sizes: '128x128', type: 'image/jpeg' });
-  }
   if (sceneJpg) {
     artworkList.push({ src: sceneJpg, sizes: '512x512', type: 'image/jpeg' });
     artworkList.push({ src: sceneJpg, sizes: '256x256', type: 'image/jpeg' });
+    artworkList.push({ src: sceneJpg, sizes: '128x128', type: 'image/jpeg' });
   }
 
   try {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: track.title,
       artist: track.artist,
-      album: `${track.album || session.labelEn} • चित्रम् Chittram Studio Radio`,
+      album: `${currentStation.labelEn} • चित्रम् Chittram Live Radio`,
       artwork: artworkList
     });
     navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
@@ -1275,22 +1346,188 @@ function setupAudioElementListeners() {
   });
 }
 
-function loadTrack(autoPlay = true) {
-  const sess = state.currentSession || findSessionForHour(getLiveKolkataHour());
-  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || (sess && sess.playlist[0]) || ALL_TRACKS[0];
-  if (!track) return;
+// ==========================================================================
+// 8. LIVE RADIO STREAMING & ICY METADATA SYNC ENGINE
+// ==========================================================================
+let liveMetadataAbortController = null;
+let metadataPollTimer = null;
 
-  state.currentPlayingTrack = track;
-  state.playedHistory.add(track.title);
+async function syncLiveStreamMetadata(station) {
+  if (!station || !station.streamUrl) return;
+
+  if (liveMetadataAbortController) {
+    try { liveMetadataAbortController.abort(); } catch (e) {}
+  }
+  liveMetadataAbortController = new AbortController();
+  const signal = liveMetadataAbortController.signal;
+
+  try {
+    const res = await fetch(station.streamUrl, {
+      headers: { 'Icy-MetaData': '1' },
+      signal
+    });
+
+    const metaint = parseInt(res.headers.get('icy-metaint'), 10);
+    if (!metaint || isNaN(metaint)) {
+      applyStationMetadataFallback(station);
+      return;
+    }
+
+    const reader = res.body.getReader();
+    let bytesRead = 0;
+    const chunks = [];
+
+    while (bytesRead < metaint + 4096) {
+      const { done, value } = await reader.read();
+      if (done || !value) break;
+      chunks.push(value);
+      bytesRead += value.length;
+    }
+
+    try { reader.cancel(); } catch (e) {}
+
+    const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+    const merged = new Uint8Array(totalLen);
+    let offset = 0;
+    for (const c of chunks) {
+      merged.set(c, offset);
+      offset += c.length;
+    }
+
+    if (merged.length > metaint) {
+      const metaLengthByte = merged[metaint];
+      const metaLength = metaLengthByte * 16;
+      if (metaLength > 0 && (metaint + 1 + metaLength) <= merged.length) {
+        const metaBytes = merged.slice(metaint + 1, metaint + 1 + metaLength);
+        const decoder = new TextDecoder('utf-8', { fatal: false });
+        const metaString = decoder.decode(metaBytes);
+        const match = metaString.match(/StreamTitle='(.*?)';/i);
+        if (match && match[1]) {
+          const rawTitle = match[1].trim();
+          if (rawTitle) {
+            applyParsedTrackMetadata(rawTitle, station);
+            return;
+          }
+        }
+      }
+    }
+
+    applyStationMetadataFallback(station);
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      applyStationMetadataFallback(station);
+    }
+  }
+}
+
+function applyParsedTrackMetadata(rawTitle, station) {
+  let cleaned = rawTitle.replace(/\s+/g, ' ').replace(/\s+and\s+/gi, ' & ').trim();
+
+  let artist = station.genre || 'Chittram Studio';
+  let title = cleaned;
+
+  if (cleaned.includes(' - ')) {
+    const parts = cleaned.split(' - ');
+    artist = parts[0].trim();
+    title = parts.slice(1).join(' - ').trim();
+  } else if (cleaned.includes('-')) {
+    const parts = cleaned.split('-');
+    artist = parts[0].trim();
+    title = parts.slice(1).join('-').trim();
+  }
+
+  const liveTrack = {
+    title,
+    artist,
+    album: `${station.labelEn} • Live Studio Radio`,
+    year: 'Live',
+    duration: 'LIVE',
+    blurb: station.tagline,
+    stationId: station.id,
+    isLiveBroadcast: true
+  };
+
+  state.currentPlayingTrack = liveTrack;
+  station.currentSong = { title, artist };
 
   renderTrackInfo();
-  updateMediaSession(track);
-  setupAudioSession();
+  updateMediaSession(liveTrack);
+  updateSoundtrackTableActiveRow();
+}
+
+function applyStationMetadataFallback(station) {
+  const fallbackTrack = {
+    title: station.labelEn,
+    artist: station.genre,
+    album: `Live Studio Broadcast • चित्रम् Chittram`,
+    year: 'Live',
+    duration: 'LIVE',
+    blurb: station.tagline,
+    stationId: station.id,
+    isLiveBroadcast: true
+  };
+  state.currentPlayingTrack = fallbackTrack;
+  renderTrackInfo();
+  updateMediaSession(fallbackTrack);
+  updateSoundtrackTableActiveRow();
+}
+
+function startMetadataPolling() {
+  if (metadataPollTimer) clearInterval(metadataPollTimer);
+  metadataPollTimer = setInterval(() => {
+    if (state.isPlaying && !state.userPaused && state.currentStation) {
+      syncLiveStreamMetadata(state.currentStation);
+    }
+  }, 18000);
+}
+
+function stopMetadataPolling() {
+  if (metadataPollTimer) {
+    clearInterval(metadataPollTimer);
+    metadataPollTimer = null;
+  }
+}
+
+function tuneToStation(stationIndex, autoPlay = true) {
+  state.currentStationIndex = stationIndex;
+  const station = RADIO_STATIONS[stationIndex];
+  state.currentStation = station;
+  state.activeSessionId = station.id;
+
+  // Masthead & Labels
+  if (el.mastheadSessionTitle) {
+    el.mastheadSessionTitle.textContent = `${station.labelHi} • ${station.labelEn}`;
+  }
+  if (el.deckSessionName) {
+    el.deckSessionName.textContent = `${station.labelEn} (${station.slot})`;
+  }
+  const liveBadgeText = document.getElementById('live-station-badge-text');
+  if (liveBadgeText) {
+    liveBadgeText.textContent = `${station.labelEn} • Live`;
+  }
+
+  // Next / Prev button hints
+  const nextStation = RADIO_STATIONS[(stationIndex + 1) % RADIO_STATIONS.length];
+  const prevStation = RADIO_STATIONS[(stationIndex - 1 + RADIO_STATIONS.length) % RADIO_STATIONS.length];
+  if (el.deckNextBtn) {
+    el.deckNextBtn.title = `Switch Station: ${nextStation.labelEn} (Right Arrow)`;
+    el.deckNextBtn.setAttribute('aria-label', `Next Station: ${nextStation.labelEn}`);
+  }
+  if (el.deckPrevBtn) {
+    el.deckPrevBtn.title = `Switch Station: ${prevStation.labelEn} (Left Arrow)`;
+    el.deckPrevBtn.setAttribute('aria-label', `Previous Station: ${prevStation.labelEn}`);
+  }
+
+  if (station.currentSong) {
+    applyParsedTrackMetadata(`${station.currentSong.artist} - ${station.currentSong.title}`, station);
+  } else {
+    applyStationMetadataFallback(station);
+  }
 
   if (el.studioAudio) {
-    const targetSrc = track.audioSrc || (sess && sess.streamUrl) || SESSION_STREAMS['late-night'];
-    if (el.studioAudio.src !== targetSrc) {
-      el.studioAudio.src = targetSrc;
+    if (el.studioAudio.src !== station.streamUrl) {
+      el.studioAudio.src = station.streamUrl;
+      if (typeof el.studioAudio.load === 'function') el.studioAudio.load();
     }
     el.studioAudio.loop = false;
     el.studioAudio.muted = state.isMuted;
@@ -1298,85 +1535,48 @@ function loadTrack(autoPlay = true) {
 
     if (autoPlay || state.isPlaying) {
       state.isPlaying = true;
+      state.userPaused = false;
       const p = el.studioAudio.play();
       if (p !== undefined) {
         p.then(() => {
           updatePlayState(true);
           acquireDualWakeLock();
           if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
-        }).catch(() => {});
+        }).catch(err => {
+          console.warn('Playback error:', err);
+        });
       }
     }
   }
+
+  syncLiveStreamMetadata(station);
+  renderSessionChips();
+  renderSoundtrackTable();
 }
 
-// ==========================================================================
-// 8. SMART NON-REPEATING QUEUE ENGINE
-// ==========================================================================
-function getNextUnplayedTrack() {
-  const current = state.currentPlayingTrack;
-  if (current) {
-    state.playedHistory.add(current.videoId || current.title);
-  }
-
-  // 1. Unplayed tracks in currently active playlist
-  let unplayedInCurrent = state.playlist.filter(t => !state.playedHistory.has(t.videoId || t.title));
-
-  // 2. Unplayed tracks in entire library
-  let unplayedInAll = ALL_TRACKS.filter(t => !state.playedHistory.has(t.videoId || t.title));
-
-  // 3. If every single track in the entire catalog has been played, reset history and begin fresh cycle!
-  if (unplayedInAll.length === 0) {
-    state.playedHistory.clear();
-    if (current) state.playedHistory.add(current.videoId || current.title);
-    unplayedInCurrent = state.playlist.filter(t => !state.playedHistory.has(t.videoId || t.title));
-    unplayedInAll = ALL_TRACKS.filter(t => !state.playedHistory.has(t.videoId || t.title));
-  }
-
-  const pool = unplayedInCurrent.length > 0 ? unplayedInCurrent : unplayedInAll;
-
-  let nextTrack = null;
-  if (state.isShuffle) {
-    const randIdx = Math.floor(Math.random() * pool.length);
-    nextTrack = pool[randIdx];
-  } else {
-    nextTrack = pool[0];
-  }
-
-  return nextTrack;
+function switchStation(direction = 1, autoPlay = true) {
+  let newIdx = (state.currentStationIndex + direction) % RADIO_STATIONS.length;
+  if (newIdx < 0) newIdx = RADIO_STATIONS.length - 1;
+  tuneToStation(newIdx, autoPlay);
 }
 
-let isAdvancingTrack = false;
+let isAdvancingStation = false;
 function playNext(autoPlay = true) {
-  if (isAdvancingTrack) return;
-  isAdvancingTrack = true;
-  setTimeout(() => {
-    isAdvancingTrack = false;
-  }, 1200);
-
-  const nextTrack = getNextUnplayedTrack();
-  if (!nextTrack) return;
-
-  state.currentPlayingTrack = nextTrack;
-
-  // Synchronize index in current playlist if it exists
-  const idx = state.playlist.findIndex(t => (t.videoId || t.title) === (nextTrack.videoId || nextTrack.title));
-  if (idx !== -1) {
-    state.currentTrackIndex = idx;
-  } else {
-    // If nextTrack came from broader library, add to playlist so it renders in table
-    state.playlist.push(nextTrack);
-    state.currentTrackIndex = state.playlist.length - 1;
-    renderSoundtrackTable();
-  }
-
-  loadTrack(autoPlay);
+  if (isAdvancingStation) return;
+  isAdvancingStation = true;
+  setTimeout(() => { isAdvancingStation = false; }, 350);
+  switchStation(1, autoPlay);
 }
 
 function playPrev(autoPlay = true) {
-  state.currentTrackIndex = (state.currentTrackIndex - 1 + state.playlist.length) % state.playlist.length;
-  state.currentPlayingTrack = state.playlist[state.currentTrackIndex];
-  loadTrack(autoPlay);
+  if (isAdvancingStation) return;
+  isAdvancingStation = true;
+  setTimeout(() => { isAdvancingStation = false; }, 350);
+  switchStation(-1, autoPlay);
+}
+
+function loadTrack(autoPlay = true) {
+  tuneToStation(state.currentStationIndex, autoPlay);
 }
 
 function startPlaybackWithSound() {
@@ -1387,15 +1587,18 @@ function startPlaybackWithSound() {
   setupAudioSession();
   initMediaSessionHandlers();
   acquireDualWakeLock();
+  startMetadataPolling();
 
-  const sess = state.currentSession || findSessionForHour(getLiveKolkataHour());
-  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || (sess && sess.playlist[0]) || ALL_TRACKS[0];
-  state.currentPlayingTrack = track;
+  const station = state.currentStation || RADIO_STATIONS[0];
+  if (!state.currentStation) {
+    tuneToStation(0, true);
+    return;
+  }
 
   if (el.studioAudio) {
-    const targetSrc = track.audioSrc || (sess && sess.streamUrl) || SESSION_STREAMS['late-night'];
-    if (el.studioAudio.src !== targetSrc) {
-      el.studioAudio.src = targetSrc;
+    if (el.studioAudio.src !== station.streamUrl) {
+      el.studioAudio.src = station.streamUrl;
+      if (typeof el.studioAudio.load === 'function') el.studioAudio.load();
     }
     el.studioAudio.loop = false;
     el.studioAudio.muted = false;
@@ -1415,7 +1618,7 @@ function startPlaybackWithSound() {
 
   updateMuteIcons();
   updatePlayState(true);
-  if (track) updateMediaSession(track);
+  syncLiveStreamMetadata(station);
 }
 
 function pausePlayback() {
@@ -1568,29 +1771,28 @@ function updateQuoteDots() {
 }
 
 // ==========================================================================
-// 10. SESSIONS SELECTOR BAR & SOUNDTRACK TABLE
+// 10. SESSIONS SELECTOR BAR & LIVE STATIONS GUIDE TABLE
 // ==========================================================================
 function renderSessionChips() {
   if (!el.sessionChipsContainer) return;
   el.sessionChipsContainer.innerHTML = '';
 
-  const activeId = state.currentSession ? state.currentSession.id : '';
+  const activeId = state.currentStation ? state.currentStation.id : RADIO_STATIONS[0].id;
 
-  SESSIONS.forEach(session => {
+  RADIO_STATIONS.forEach((station, index) => {
     const chip = document.createElement('button');
     chip.type = 'button';
-    chip.className = 'session-chip' + (session.id === activeId ? ' active' : '');
-    chip.dataset.id = session.id;
+    chip.className = 'session-chip' + (station.id === activeId ? ' active' : '');
+    chip.setAttribute('data-id', station.id);
 
     chip.innerHTML = `
       <span class="chip-dot" aria-hidden="true"></span>
-      <span>${session.labelHi} • ${session.labelEn}</span>
+      <span>${station.labelHi} • ${station.labelEn}</span>
     `;
 
     chip.addEventListener('click', () => {
       state.isLiveTime = false;
-      state.activeSessionId = session.id;
-      setSession(session, true);
+      tuneToStation(index, true);
     });
 
     el.sessionChipsContainer.appendChild(chip);
@@ -1601,33 +1803,36 @@ function renderSoundtrackTable() {
   if (!el.soundtrackTableBody) return;
   el.soundtrackTableBody.innerHTML = '';
 
-  const tracks = state.playlist;
-  const currentPlayingId = state.currentPlayingTrack ? (state.currentPlayingTrack.videoId || state.currentPlayingTrack.title) : null;
-
-  tracks.forEach((track, index) => {
+  RADIO_STATIONS.forEach((station, index) => {
     const tr = document.createElement('tr');
-    tr.dataset.index = index;
-    const isCurrent = currentPlayingId === (track.videoId || track.title);
+    tr.setAttribute('data-index', index);
+    const isCurrent = state.currentStationIndex === index;
     if (isCurrent) tr.classList.add('active-row');
 
+    const songSub = station.currentSong
+      ? `<span class="station-now-playing">▶ ${station.currentSong.title} — ${station.currentSong.artist}</span>`
+      : `<span class="station-now-playing">Live stream • Tap to tune in</span>`;
+
     tr.innerHTML = `
-      <td class="col-num track-index-num">${index + 1}</td>
+      <td class="col-num track-index-num">${station.channel}</td>
       <td class="col-title table-track-title">
-        <div class="title-with-wave">
-          <span class="table-title-text">${track.title}</span>
-          ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+        <div class="station-title-cell">
+          <div class="title-with-wave">
+            <span class="table-title-text">${station.labelHi} • ${station.labelEn}</span>
+            ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+          </div>
+          ${songSub}
         </div>
-        <span class="table-mobile-artist">${track.artist}</span>
+        <span class="table-mobile-artist">${station.genre}</span>
       </td>
-      <td class="col-artist table-track-artist">${track.artist}</td>
-      <td class="col-time table-track-time">${track.duration || '4:00'}</td>
+      <td class="col-artist table-track-artist">${station.genre}</td>
+      <td class="col-time table-track-time">
+        <span class="station-status-live"><span class="live-dot-green"></span> LIVE</span>
+      </td>
     `;
 
     tr.addEventListener('click', () => {
-      state.currentTrackIndex = index;
-      state.currentPlayingTrack = track;
-      state.userPaused = false;
-      loadTrack(true);
+      tuneToStation(index, true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -1636,26 +1841,30 @@ function renderSoundtrackTable() {
 }
 
 function updateSoundtrackTableActiveRow() {
-  if (!el.soundtrackTableBody) return;
+  if (!el.soundtrackTableBody || typeof el.soundtrackTableBody.querySelectorAll !== 'function') return;
   const rows = el.soundtrackTableBody.querySelectorAll('tr');
-  const currentPlayingId = state.currentPlayingTrack ? (state.currentPlayingTrack.videoId || state.currentPlayingTrack.title) : null;
 
   rows.forEach((tr, index) => {
-    const track = state.playlist[index];
-    if (!track) return;
-
-    const isCurrent = currentPlayingId === (track.videoId || track.title);
+    const isCurrent = state.currentStationIndex === index;
     tr.classList.toggle('active-row', isCurrent);
+    const station = RADIO_STATIONS[index];
+    if (!station) return;
 
     const titleEl = tr.querySelector('.table-track-title');
-
     if (titleEl) {
+      const songSub = station.currentSong
+        ? `<span class="station-now-playing">▶ ${station.currentSong.title} — ${station.currentSong.artist}</span>`
+        : `<span class="station-now-playing">Live stream • Tap to tune in</span>`;
+
       titleEl.innerHTML = `
-        <div class="title-with-wave">
-          <span class="table-title-text">${track.title}</span>
-          ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+        <div class="station-title-cell">
+          <div class="title-with-wave">
+            <span class="table-title-text">${station.labelHi} • ${station.labelEn}</span>
+            ${isCurrent && state.isPlaying ? '<span class="active-sound-wave" aria-hidden="true"><span></span><span></span><span></span></span>' : ''}
+          </div>
+          ${songSub}
         </div>
-        <span class="table-mobile-artist">${track.artist}</span>
+        <span class="table-mobile-artist">${station.genre}</span>
       `;
     }
   });
@@ -1828,21 +2037,14 @@ function init() {
   switchArtwork(0, false);
   startArtworkRotation();
 
-  // Initial Session (Synced to IST)
-  const liveSession = findSessionForHour(getLiveKolkataHour());
-  setSession(liveSession);
+  // Initialize with Station 0: Trending Hits India
+  tuneToStation(0, false);
+  startMetadataPolling();
 
   // Live IST Clock Loop
   setInterval(() => {
     const str = formatClockString();
     if (el.liveIstClock) el.liveIstClock.textContent = str;
-
-    if (state.isLiveTime) {
-      const expSession = findSessionForHour(getLiveKolkataHour());
-      if (!state.currentSession || state.currentSession.id !== expSession.id) {
-        setSession(expSession);
-      }
-    }
   }, 1000);
 
   if (el.liveIstClock) el.liveIstClock.textContent = formatClockString();
@@ -1856,17 +2058,12 @@ function init() {
 
   // Persistent Keep-Alive Watchdog:
   // 1. Keeps dual wake-lock running so screen never auto-locks
-  // 2. Automatically resumes YouTube if paused by an involuntary mobile OS hiccup
+  // 2. Automatically resumes studioAudio if interrupted by OS
   setInterval(() => {
     if (state.isPlaying && !state.userPaused) {
       acquireDualWakeLock();
-      if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.getPlayerState === 'function') {
-        try {
-          const s = state.ytPlayer.getPlayerState();
-          if (s === 2 /* PAUSED */) {
-            state.ytPlayer.playVideo();
-          }
-        } catch (e) {}
+      if (el.studioAudio && el.studioAudio.paused) {
+        try { el.studioAudio.play(); } catch (e) {}
       }
     }
   }, 5000);

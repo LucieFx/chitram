@@ -873,6 +873,54 @@ a {
   padding-right: 0.25rem !important;
 }
 
+.station-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.station-now-playing {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  font-style: italic;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 380px;
+}
+
+.soundtrack-table tr.active-row .station-now-playing {
+  color: var(--accent-rust);
+  font-style: normal;
+}
+
+.station-status-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #2ea043;
+}
+
+.live-dot-green {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background-color: #2ea043;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(46, 160, 67, 0.6);
+  animation: pulse-green 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
 /* -------------------------------------------------------------
    8. QUOTES SECTION (Bilingual Hindi & English)
    ------------------------------------------------------------- */
