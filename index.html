@@ -46,7 +46,7 @@
 
 <body>
   <!-- Persistent Native HTML5 Studio Audio Player -->
-  <audio id="studio-audio" preload="none"></audio>
+  <audio id="studio-audio" preload="auto" playsinline webkit-playsinline></audio>
 
   <!-- Soft Atelier Linen Backdrop Texture -->
   <div class="studio-paper-texture" aria-hidden="true"></div>
@@ -92,6 +92,12 @@
 
           <div class="studio-kicker-row">
             <span class="kicker-label">Now playing in the studio</span>
+            <button type="button" id="audio-engine-toggle" class="audio-engine-toggle"
+              aria-label="Switch audio engine mode"
+              title="Click to toggle between Direct HTML5 Audio (Lock-Screen Pocket Mode) and YouTube Engine">
+              <span class="engine-dot" id="engine-status-dot"></span>
+              <span id="engine-toggle-label">Direct Audio (Lock-Screen)</span>
+            </button>
           </div>
 
           <!-- Dynamic Song Title & Artist Details -->

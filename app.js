@@ -694,6 +694,7 @@ const state = {
   volume: 85,
   artistsCount: 1853,
   tableFilterMode: 'session', // 'session' or 'all'
+  activeAudioEngine: 'direct', // 'direct' (HTML5 audio) or 'youtube'
 
   // YouTube Iframe Engine
   ytPlayer: null,
@@ -735,6 +736,9 @@ const el = {
   deckTrackArtist: document.getElementById('deck-track-artist'),
   deckTrackAlbum: document.getElementById('deck-track-album'),
   deckTrackBlurb: document.getElementById('deck-track-blurb'),
+  audioEngineToggle: document.getElementById('audio-engine-toggle'),
+  engineToggleLabel: document.getElementById('engine-toggle-label'),
+  engineStatusDot: document.getElementById('engine-status-dot'),
   audioEngineBadge: document.getElementById('audio-engine-badge'),
   queueStatusBadge: document.getElementById('queue-status-badge'),
   deckPrevBtn: document.getElementById('deck-prev-btn'),
@@ -932,6 +936,13 @@ function updatePlayState(playing) {
 }
 
 function getCurrentPlaybackTime() {
+  if (state.activeAudioEngine === 'direct' && el.studioAudio) {
+    try {
+      if (!isNaN(el.studioAudio.currentTime) && el.studioAudio.currentTime >= 0) {
+        return el.studioAudio.currentTime;
+      }
+    } catch (e) {}
+  }
   if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.getCurrentTime === 'function') {
     try {
       const ytTime = state.ytPlayer.getCurrentTime();
@@ -942,6 +953,13 @@ function getCurrentPlaybackTime() {
 }
 
 function getCurrentPlaybackDuration() {
+  if (state.activeAudioEngine === 'direct' && el.studioAudio) {
+    try {
+      if (!isNaN(el.studioAudio.duration) && el.studioAudio.duration > 0) {
+        return el.studioAudio.duration;
+      }
+    } catch (e) {}
+  }
   if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.getDuration === 'function') {
     try {
       const ytDur = state.ytPlayer.getDuration();
@@ -958,15 +976,13 @@ function getCurrentPlaybackDuration() {
 }
 
 function seekToTime(seconds) {
-  if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.seekTo === 'function') {
+  if (state.activeAudioEngine === 'direct' && el.studioAudio && !isNaN(seconds)) {
+    try {
+      el.studioAudio.currentTime = Math.min(el.studioAudio.duration || seconds, Math.max(0, seconds));
+    } catch (e) {}
+  } else if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.seekTo === 'function') {
     try {
       state.ytPlayer.seekTo(seconds, true);
-    } catch (e) {}
-  }
-  if (el.studioAudio && !isNaN(seconds)) {
-    try {
-      const dur = el.studioAudio.duration;
-      el.studioAudio.currentTime = (dur && dur > 0) ? (seconds % dur) : 0;
     } catch (e) {}
   }
   updateTrackProgressDisplay();
@@ -1103,27 +1119,10 @@ function ensureWakeVideo() {
     wakeVideo.muted = true;
     wakeVideo.defaultMuted = true;
     wakeVideo.playsInline = true;
-    wakeVideo.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.001;pointer-events:none;z-index:-9999;';
-
-    const sWebm = document.createElement('source');
-    sWebm.src = NO_SLEEP_WEBM;
-    sWebm.type = 'video/webm';
-    wakeVideo.appendChild(sWebm);
-
-    const sMp4 = document.createElement('source');
-    sMp4.src = NO_SLEEP_MP4;
-    sMp4.type = 'video/mp4';
-    wakeVideo.appendChild(sMp4);
-
-    wakeVideo.addEventListener('loadedmetadata', () => {
-      wakeVideo.currentTime = 0;
-    });
-
-    wakeVideo.addEventListener('timeupdate', () => {
-      if (wakeVideo.currentTime > 0.5) {
-        wakeVideo.currentTime = 0;
-      }
-    });
+    wakeVideo.loop = true;
+    // Set MP4 directly for flawless iOS Safari & Android mobile hardware decoding
+    wakeVideo.src = NO_SLEEP_MP4;
+    wakeVideo.style.cssText = 'position:fixed;bottom:0;right:0;width:10px;height:10px;opacity:0.01;pointer-events:none;z-index:-9999;';
 
     document.body.appendChild(wakeVideo);
     return wakeVideo;
@@ -1132,37 +1131,29 @@ function ensureWakeVideo() {
   }
 }
 
-async function acquireDualWakeLock() {
-  if (isAcquiringWakeLock) return;
-  isAcquiringWakeLock = true;
+function acquireDualWakeLock() {
+  // 1. Universal video wake lock assertion (Forces iOS & Android displays to stay awake indefinitely)
   try {
-    // 1. Universal video wake lock assertion (Forces iOS & Android displays to stay awake)
     const v = ensureWakeVideo();
     if (v && v.paused) {
-      try {
-        const p = v.play();
-        if (p && typeof p.catch === 'function') {
-          p.catch(() => {});
-        }
-      } catch (e) {}
+      const p = v.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {});
+      }
     }
+  } catch (e) {}
 
-    // 2. Native Screen Wake Lock API
-    if ('wakeLock' in navigator) {
-      try {
-        if (!screenWakeLock) {
-          screenWakeLock = await navigator.wakeLock.request('screen');
-          screenWakeLock.addEventListener('release', () => {
-            screenWakeLock = null;
-            if (state.isPlaying && !state.userPaused) {
-              setTimeout(acquireDualWakeLock, 800);
-            }
-          });
+  // 2. Native Screen Wake Lock API for modern browsers (Safari 16.4+, Chrome, Edge)
+  if ('wakeLock' in navigator && !screenWakeLock) {
+    navigator.wakeLock.request('screen').then(lock => {
+      screenWakeLock = lock;
+      screenWakeLock.addEventListener('release', () => {
+        screenWakeLock = null;
+        if (state.isPlaying && !state.userPaused) {
+          setTimeout(acquireDualWakeLock, 800);
         }
-      } catch (e) {}
-    }
-  } finally {
-    isAcquiringWakeLock = false;
+      });
+    }).catch(() => {});
   }
 }
 
@@ -1189,7 +1180,7 @@ function releaseWakeLock() {
 const SILENT_AUDIO_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 
 function ensureBackgroundAudioKeeper() {
-  if (!el.studioAudio) return;
+  if (!el.studioAudio || state.activeAudioEngine === 'direct') return;
   try {
     if (!el.studioAudio.src || el.studioAudio.src === '' || el.studioAudio.src.indexOf('data:audio') === -1) {
       el.studioAudio.src = SILENT_AUDIO_WAV;
@@ -1207,7 +1198,8 @@ function ensureBackgroundAudioKeeper() {
 }
 
 function pauseBackgroundAudioKeeper() {
-  if (el.studioAudio && !el.studioAudio.paused) {
+  if (state.activeAudioEngine === 'direct') return;
+  if (el.studioAudio && !el.studioAudio.paused && el.studioAudio.src.indexOf('data:audio') !== -1) {
     try {
       el.studioAudio.pause();
     } catch (e) {}
@@ -1344,10 +1336,58 @@ function setAppVolume(volumePct) {
 
 function setupAudioElementListeners() {
   if (!el.studioAudio) return;
-  // Companion audio is completely silenced - only official YouTube music plays!
-  el.studioAudio.pause();
-  el.studioAudio.muted = true;
-  el.studioAudio.removeAttribute('src');
+
+  el.studioAudio.addEventListener('ended', () => {
+    if (state.activeAudioEngine === 'direct') {
+      playNext(true);
+    }
+  });
+
+  el.studioAudio.addEventListener('timeupdate', () => {
+    if (state.activeAudioEngine === 'direct') {
+      updateTrackProgressDisplay();
+      updateMediaSessionPositionState();
+    }
+  });
+
+  el.studioAudio.addEventListener('loadedmetadata', () => {
+    if (state.activeAudioEngine === 'direct') {
+      updateTrackProgressDisplay();
+      updateMediaSessionPositionState();
+    }
+  });
+
+  el.studioAudio.addEventListener('play', () => {
+    if (state.activeAudioEngine === 'direct') {
+      updatePlayState(true);
+    }
+  });
+
+  el.studioAudio.addEventListener('pause', () => {
+    if (state.activeAudioEngine === 'direct' && state.userPaused) {
+      updatePlayState(false);
+    }
+  });
+}
+
+function getTrackDirectAudio(track) {
+  if (track && track.audioSrc) return track.audioSrc;
+  const sess = track?.session || state.currentSession || findSessionForHour(getLiveKolkataHour());
+  const sessId = sess ? sess.id : 'late-night';
+  return `assets/audio/session-${sessId}.mp3`;
+}
+
+function updateAudioEngineUI() {
+  if (!el.audioEngineToggle) return;
+  if (state.activeAudioEngine === 'direct') {
+    if (el.engineToggleLabel) el.engineToggleLabel.textContent = 'Direct Audio (Lock-Screen)';
+    el.audioEngineToggle.classList.remove('mode-youtube');
+    el.audioEngineToggle.title = 'Active: Direct HTML5 Audio Engine (Plays continuously with screen locked & in pocket). Tap to switch to YouTube Engine.';
+  } else {
+    if (el.engineToggleLabel) el.engineToggleLabel.textContent = 'YouTube Audio (Desk Screen-On)';
+    el.audioEngineToggle.classList.add('mode-youtube');
+    el.audioEngineToggle.title = 'Active: YouTube Engine (Screen kept awake on easel desk with NoSleep). Tap to switch to Direct Audio (Lock-Screen).';
+  }
 }
 
 function loadTrack(autoPlay = true) {
@@ -1360,29 +1400,48 @@ function loadTrack(autoPlay = true) {
   renderTrackInfo();
   updateMediaSession(track);
   setupAudioSession();
+  updateAudioEngineUI();
 
-  // 1. Play real song in YouTube Player
-  if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.loadVideoById === 'function') {
-    try {
-      if (autoPlay || state.isPlaying) {
-        state.ytPlayer.loadVideoById(track.videoId);
-        state.ytPlayer.playVideo();
-      } else {
-        state.ytPlayer.cueVideoById(track.videoId);
-      }
-      state.ytPlayer.setVolume(state.isMuted ? 0 : state.volume);
-    } catch (e) {
-      console.warn('YouTube loadVideoById warning:', e);
+  if (state.activeAudioEngine === 'direct' && el.studioAudio) {
+    const directSrc = getTrackDirectAudio(track);
+    if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
+      try { state.ytPlayer.pauseVideo(); } catch (e) {}
     }
-  }
-
-  // 2. Maintain background audio keeper pipeline
-  if (autoPlay || state.isPlaying) {
-    ensureBackgroundAudioKeeper();
+    el.studioAudio.loop = false;
+    el.studioAudio.muted = false;
+    el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
+    if (!el.studioAudio.src.endsWith(directSrc)) {
+      el.studioAudio.src = directSrc;
+    }
+    if (autoPlay || state.isPlaying) {
+      el.studioAudio.play().catch(() => {});
+    }
+  } else {
+    state.activeAudioEngine = 'youtube';
+    if (el.studioAudio && !el.studioAudio.paused && el.studioAudio.src.indexOf('data:audio') === -1) {
+      try { el.studioAudio.pause(); } catch (e) {}
+    }
+    if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.loadVideoById === 'function') {
+      try {
+        if (autoPlay || state.isPlaying) {
+          state.ytPlayer.loadVideoById(track.videoId);
+          state.ytPlayer.playVideo();
+        } else {
+          state.ytPlayer.cueVideoById(track.videoId);
+        }
+        state.ytPlayer.setVolume(state.isMuted ? 0 : state.volume);
+      } catch (e) {
+        console.warn('YouTube loadVideoById warning:', e);
+      }
+    }
+    if (autoPlay || state.isPlaying) {
+      ensureBackgroundAudioKeeper();
+    }
   }
 
   if (autoPlay) {
     updatePlayState(true);
+    acquireDualWakeLock();
   }
 }
 
@@ -1398,7 +1457,7 @@ function getNextUnplayedTrack() {
   // 1. Unplayed tracks in currently active playlist
   let unplayedInCurrent = state.playlist.filter(t => !state.playedHistory.has(t.videoId || t.title));
 
-  // 2. Unplayed tracks in entire 385-song library
+  // 2. Unplayed tracks in entire library
   let unplayedInAll = ALL_TRACKS.filter(t => !state.playedHistory.has(t.videoId || t.title));
 
   // 3. If every single track in the entire catalog has been played, reset history and begin fresh cycle!
@@ -1462,24 +1521,31 @@ function startPlaybackWithSound() {
 
   setupAudioSession();
   initMediaSessionHandlers();
-  requestWakeLock();
+  acquireDualWakeLock();
 
   const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || ALL_TRACKS[0];
   state.currentPlayingTrack = track;
 
-  // Play YouTube (the REAL song!)
-  if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+  if (track && track.audioSrc && el.studioAudio) {
+    state.activeAudioEngine = 'direct';
+    el.studioAudio.loop = false;
+    el.studioAudio.muted = false;
+    el.studioAudio.volume = state.volume / 100;
+    if (!el.studioAudio.src.endsWith(track.audioSrc)) {
+      el.studioAudio.src = track.audioSrc;
+    }
+    el.studioAudio.play().catch(() => {});
+  } else if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+    state.activeAudioEngine = 'youtube';
     try {
       state.ytPlayer.unMute();
       state.ytPlayer.setVolume(state.volume);
       state.ytPlayer.playVideo();
     } catch (e) {}
-  } else if (!state.ytReady) {
+    ensureBackgroundAudioKeeper();
+  } else {
     state.isPlaying = true;
   }
-
-  // Maintain background audio keeper pipeline
-  ensureBackgroundAudioKeeper();
 
   if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
   updateMuteIcons();
@@ -1490,6 +1556,9 @@ function startPlaybackWithSound() {
 
 function pausePlayback() {
   state.userPaused = true;
+  if (state.activeAudioEngine === 'direct' && el.studioAudio) {
+    try { el.studioAudio.pause(); } catch (e) {}
+  }
   if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
     try {
       state.ytPlayer.pauseVideo();
@@ -1497,7 +1566,7 @@ function pausePlayback() {
   }
   pauseBackgroundAudioKeeper();
   updatePlayState(false);
-  releaseWakeLock();
+  releaseDualWakeLock();
 }
 
 function togglePlay() {
@@ -1742,6 +1811,12 @@ function setupDeckControls() {
   el.deckNextBtn?.addEventListener('click', () => playNext(true));
   el.deckPrevBtn?.addEventListener('click', () => playPrev(true));
 
+  el.audioEngineToggle?.addEventListener('click', () => {
+    state.activeAudioEngine = state.activeAudioEngine === 'direct' ? 'youtube' : 'direct';
+    updateAudioEngineUI();
+    loadTrack(state.isPlaying);
+  });
+
   el.deckShuffleBtn?.addEventListener('click', () => {
     state.isShuffle = !state.isShuffle;
     el.deckShuffleBtn.classList.toggle('toggled', state.isShuffle);
@@ -1824,14 +1899,18 @@ function setupDeckControls() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       if (state.isPlaying && !state.userPaused) {
-        ensureBackgroundAudioKeeper();
+        if (state.activeAudioEngine === 'youtube') {
+          ensureBackgroundAudioKeeper();
+        }
         acquireDualWakeLock();
       }
     } else {
       if (state.isPlaying && !state.userPaused) {
         acquireDualWakeLock();
-        ensureBackgroundAudioKeeper();
-        if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+        if (state.activeAudioEngine === 'direct' && el.studioAudio && el.studioAudio.paused) {
+          try { el.studioAudio.play(); } catch (e) {}
+        }
+        if (state.activeAudioEngine === 'youtube' && state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
           try { state.ytPlayer.playVideo(); } catch (e) {}
         }
         updatePlayState(true);
@@ -1842,7 +1921,10 @@ function setupDeckControls() {
   window.addEventListener('focus', () => {
     if (state.isPlaying && !state.userPaused) {
       acquireDualWakeLock();
-      if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+      if (state.activeAudioEngine === 'direct' && el.studioAudio && el.studioAudio.paused) {
+        try { el.studioAudio.play(); } catch (e) {}
+      }
+      if (state.activeAudioEngine === 'youtube' && state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
         try { state.ytPlayer.playVideo(); } catch (e) {}
       }
     }
@@ -1851,7 +1933,10 @@ function setupDeckControls() {
   window.addEventListener('pageshow', () => {
     if (state.isPlaying && !state.userPaused) {
       acquireDualWakeLock();
-      if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
+      if (state.activeAudioEngine === 'direct' && el.studioAudio && el.studioAudio.paused) {
+        try { el.studioAudio.play(); } catch (e) {}
+      }
+      if (state.activeAudioEngine === 'youtube' && state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
         try { state.ytPlayer.playVideo(); } catch (e) {}
       }
     }
@@ -1891,6 +1976,7 @@ function updateMuteIcons() {
 function init() {
   initYouTube();
   setupDeckControls();
+  updateAudioEngineUI();
   setupAudioElementListeners();
   setupAudioSession();
   initMediaSessionHandlers();
