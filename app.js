@@ -591,8 +591,19 @@ const SESSIONS = [
   }
 ];
 
+const SESSION_STREAMS = {
+  'late-night': 'https://drive.uber.radio/uber/bollywoodaruitsingh/icecast.audio',
+  'dawn': 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
+  'morning': 'https://puma.streemlion.com:4130/stream',
+  'afternoon': 'https://drive.uber.radio/uber/bollywood2010s/icecast.audio',
+  'golden-hour': 'https://drive.uber.radio/uber/bollywoodnow/icecast.audio',
+  'dusk': 'https://puma.streemlion.com:4130/stream',
+  'night': 'https://drive.uber.radio/uber/bollywoodaruitsingh/icecast.audio'
+};
+
 const ALL_TRACKS = [];
 SESSIONS.forEach(sess => {
+  sess.streamUrl = SESSION_STREAMS[sess.id] || SESSION_STREAMS['late-night'];
   sess.playlist.forEach(t => {
     t.session = sess;
     ALL_TRACKS.push(t);
@@ -1017,81 +1028,10 @@ function stopTrackProgress() {
 }
 
 // ==========================================================================
-// 6. YOUTUBE OFFICIAL AUDIO ENGINE (Real Original Music)
+// 6. NATIVE STUDIO AUDIO ENGINE (Direct Lock-Screen & Pocket Optimized)
 // ==========================================================================
 function initYouTube() {
-  window.onYouTubeIframeAPIReady = () => {
-    const initialTrack = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || ALL_TRACKS[0];
-    const initialId = initialTrack ? initialTrack.videoId : 'W4rSh7R-KP8';
-
-    state.ytPlayer = new YT.Player('yt-player-slot', {
-      height: '100%',
-      width: '100%',
-      videoId: initialId,
-      playerVars: {
-        autoplay: 0,
-        controls: 1,
-        disablekb: 0,
-        enablejsapi: 1,
-        fs: 1,
-        iv_load_policy: 3,
-        modestbranding: 1,
-        playsinline: 1,
-        rel: 0,
-        origin: window.location.origin
-      },
-      events: {
-        onReady: (event) => {
-          state.ytReady = true;
-          event.target.setVolume(state.isMuted ? 0 : state.volume);
-          if (state.isPlaying) {
-            try {
-              event.target.playVideo();
-            } catch (e) {}
-          }
-        },
-        onStateChange: (event) => {
-          if (event.data === YT.PlayerState.PLAYING) {
-            updatePlayState(true);
-            acquireDualWakeLock();
-            if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
-          } else if (event.data === YT.PlayerState.PAUSED) {
-            if ('mediaSession' in navigator) {
-              try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {}
-            }
-            if (state.userPaused) {
-              updatePlayState(false);
-            } else {
-              // Involuntary pause caused by mobile OS screen dimming, brief notification, or audio focus flicker:
-              // Only auto-resume if the document is still visible
-              if (!document.hidden) {
-                clearTimeout(state.involuntaryPauseTimer);
-                state.involuntaryPauseTimer = setTimeout(() => {
-                  if (!state.userPaused && state.isPlaying && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-                    try {
-                      state.ytPlayer.playVideo();
-                      acquireDualWakeLock();
-                    } catch (e) {}
-                  }
-                }, 800);
-              }
-            }
-          } else if (event.data === YT.PlayerState.ENDED) {
-            // Real song finished 100%: automatically advance to next song!
-            playNext(true);
-          }
-        },
-        onError: (err) => {
-          console.warn('YouTube notice error code:', err.data);
-          setTimeout(() => playNext(true), 1200);
-        }
-      }
-    });
-  };
-
-  if (window.YT && window.YT.Player) {
-    window.onYouTubeIframeAPIReady();
-  }
+  // Native HTML5 studio-audio engine handles continuous playback
 }
 
 // ==========================================================================
@@ -1176,45 +1116,15 @@ function releaseWakeLock() {
   return releaseDualWakeLock();
 }
 
-// Silent Audio Anchor: keeps the mobile OS audio pipeline alive so the tab is never frozen
-const SILENT_AUDIO_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-
-function ensureBackgroundAudioKeeper() {
-  if (!el.studioAudio || state.activeAudioEngine === 'direct') return;
-  try {
-    if (!el.studioAudio.src || el.studioAudio.src === '' || el.studioAudio.src.indexOf('data:audio') === -1) {
-      el.studioAudio.src = SILENT_AUDIO_WAV;
-      el.studioAudio.loop = true;
-      el.studioAudio.volume = 0.01;
-      el.studioAudio.muted = false;
-    }
-    if (state.isPlaying && el.studioAudio.paused) {
-      const p = el.studioAudio.play();
-      if (p && typeof p.catch === 'function') {
-        p.catch(() => {});
-      }
-    }
-  } catch (e) {}
-}
-
-function pauseBackgroundAudioKeeper() {
-  if (state.activeAudioEngine === 'direct') return;
-  if (el.studioAudio && !el.studioAudio.paused && el.studioAudio.src.indexOf('data:audio') !== -1) {
-    try {
-      el.studioAudio.pause();
-    } catch (e) {}
-  }
-}
+function ensureBackgroundAudioKeeper() {}
+function pauseBackgroundAudioKeeper() {}
 
 function setupAudioSession() {
   if ('audioSession' in navigator) {
     try {
       navigator.audioSession.type = 'playback';
-    } catch (err) {
-      console.warn('AudioSession setup warning:', err);
-    }
+    } catch (err) {}
   }
-  ensureBackgroundAudioKeeper();
 }
 
 function initMediaSessionHandlers() {
@@ -1318,16 +1228,6 @@ function updateMediaSessionPositionState() {
 
 function setAppVolume(volumePct) {
   state.volume = Math.max(0, Math.min(100, volumePct));
-  if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.setVolume === 'function') {
-    try {
-      if (state.isMuted) {
-        state.ytPlayer.mute();
-      } else {
-        state.ytPlayer.unMute();
-        state.ytPlayer.setVolume(state.volume);
-      }
-    } catch (e) {}
-  }
   if (el.studioAudio) {
     el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
   }
@@ -1338,110 +1238,75 @@ function setupAudioElementListeners() {
   if (!el.studioAudio) return;
 
   el.studioAudio.addEventListener('ended', () => {
-    if (state.activeAudioEngine === 'direct') {
-      playNext(true);
-    }
+    playNext(true);
   });
 
   el.studioAudio.addEventListener('timeupdate', () => {
-    if (state.activeAudioEngine === 'direct') {
-      updateTrackProgressDisplay();
-      updateMediaSessionPositionState();
-    }
+    updateTrackProgressDisplay();
+    updateMediaSessionPositionState();
   });
 
   el.studioAudio.addEventListener('loadedmetadata', () => {
-    if (state.activeAudioEngine === 'direct') {
-      updateTrackProgressDisplay();
-      updateMediaSessionPositionState();
-    }
+    updateTrackProgressDisplay();
+    updateMediaSessionPositionState();
   });
 
   el.studioAudio.addEventListener('play', () => {
-    if (state.activeAudioEngine === 'direct') {
-      updatePlayState(true);
-    }
+    updatePlayState(true);
   });
 
   el.studioAudio.addEventListener('pause', () => {
-    if (state.activeAudioEngine === 'direct' && state.userPaused) {
+    if (state.userPaused) {
       updatePlayState(false);
+    }
+  });
+
+  el.studioAudio.addEventListener('error', (e) => {
+    console.warn('Audio stream error, reconnecting in 2s...', e);
+    if (state.isPlaying && !state.userPaused) {
+      setTimeout(() => {
+        if (state.isPlaying && !state.userPaused && el.studioAudio) {
+          const sess = state.currentSession || findSessionForHour(getLiveKolkataHour());
+          el.studioAudio.src = (sess && sess.streamUrl) || SESSION_STREAMS['late-night'];
+          el.studioAudio.play().catch(() => {});
+        }
+      }, 2000);
     }
   });
 }
 
-function getTrackDirectAudio(track) {
-  if (track && track.audioSrc) return track.audioSrc;
-  const sess = track?.session || state.currentSession || findSessionForHour(getLiveKolkataHour());
-  const sessId = sess ? sess.id : 'late-night';
-  return `assets/audio/session-${sessId}.mp3`;
-}
-
-function updateAudioEngineUI() {
-  if (!el.audioEngineToggle) return;
-  if (state.activeAudioEngine === 'direct') {
-    if (el.engineToggleLabel) el.engineToggleLabel.textContent = 'Direct Audio (Lock-Screen)';
-    el.audioEngineToggle.classList.remove('mode-youtube');
-    el.audioEngineToggle.title = 'Active: Direct HTML5 Audio Engine (Plays continuously with screen locked & in pocket). Tap to switch to YouTube Engine.';
-  } else {
-    if (el.engineToggleLabel) el.engineToggleLabel.textContent = 'YouTube Audio (Desk Screen-On)';
-    el.audioEngineToggle.classList.add('mode-youtube');
-    el.audioEngineToggle.title = 'Active: YouTube Engine (Screen kept awake on easel desk with NoSleep). Tap to switch to Direct Audio (Lock-Screen).';
-  }
-}
-
 function loadTrack(autoPlay = true) {
-  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex];
+  const sess = state.currentSession || findSessionForHour(getLiveKolkataHour());
+  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || (sess && sess.playlist[0]) || ALL_TRACKS[0];
   if (!track) return;
 
   state.currentPlayingTrack = track;
-  state.playedHistory.add(track.videoId || track.title);
+  state.playedHistory.add(track.title);
 
   renderTrackInfo();
   updateMediaSession(track);
   setupAudioSession();
-  updateAudioEngineUI();
 
-  if (state.activeAudioEngine === 'direct' && el.studioAudio) {
-    const directSrc = getTrackDirectAudio(track);
-    if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
-      try { state.ytPlayer.pauseVideo(); } catch (e) {}
+  if (el.studioAudio) {
+    const targetSrc = track.audioSrc || (sess && sess.streamUrl) || SESSION_STREAMS['late-night'];
+    if (el.studioAudio.src !== targetSrc) {
+      el.studioAudio.src = targetSrc;
     }
     el.studioAudio.loop = false;
-    el.studioAudio.muted = false;
+    el.studioAudio.muted = state.isMuted;
     el.studioAudio.volume = state.isMuted ? 0 : (state.volume / 100);
-    if (!el.studioAudio.src.endsWith(directSrc)) {
-      el.studioAudio.src = directSrc;
-    }
+
     if (autoPlay || state.isPlaying) {
-      el.studioAudio.play().catch(() => {});
-    }
-  } else {
-    state.activeAudioEngine = 'youtube';
-    if (el.studioAudio && !el.studioAudio.paused && el.studioAudio.src.indexOf('data:audio') === -1) {
-      try { el.studioAudio.pause(); } catch (e) {}
-    }
-    if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.loadVideoById === 'function') {
-      try {
-        if (autoPlay || state.isPlaying) {
-          state.ytPlayer.loadVideoById(track.videoId);
-          state.ytPlayer.playVideo();
-        } else {
-          state.ytPlayer.cueVideoById(track.videoId);
-        }
-        state.ytPlayer.setVolume(state.isMuted ? 0 : state.volume);
-      } catch (e) {
-        console.warn('YouTube loadVideoById warning:', e);
+      state.isPlaying = true;
+      const p = el.studioAudio.play();
+      if (p !== undefined) {
+        p.then(() => {
+          updatePlayState(true);
+          acquireDualWakeLock();
+          if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
+        }).catch(() => {});
       }
     }
-    if (autoPlay || state.isPlaying) {
-      ensureBackgroundAudioKeeper();
-    }
-  }
-
-  if (autoPlay) {
-    updatePlayState(true);
-    acquireDualWakeLock();
   }
 }
 
@@ -1523,48 +1388,41 @@ function startPlaybackWithSound() {
   initMediaSessionHandlers();
   acquireDualWakeLock();
 
-  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || ALL_TRACKS[0];
+  const sess = state.currentSession || findSessionForHour(getLiveKolkataHour());
+  const track = state.currentPlayingTrack || state.playlist[state.currentTrackIndex] || (sess && sess.playlist[0]) || ALL_TRACKS[0];
   state.currentPlayingTrack = track;
 
-  if (track && track.audioSrc && el.studioAudio) {
-    state.activeAudioEngine = 'direct';
+  if (el.studioAudio) {
+    const targetSrc = track.audioSrc || (sess && sess.streamUrl) || SESSION_STREAMS['late-night'];
+    if (el.studioAudio.src !== targetSrc) {
+      el.studioAudio.src = targetSrc;
+    }
     el.studioAudio.loop = false;
     el.studioAudio.muted = false;
     el.studioAudio.volume = state.volume / 100;
-    if (!el.studioAudio.src.endsWith(track.audioSrc)) {
-      el.studioAudio.src = track.audioSrc;
+
+    const p = el.studioAudio.play();
+    if (p !== undefined) {
+      p.then(() => {
+        updatePlayState(true);
+        if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
+      }).catch(err => {
+        console.warn('Playback start error:', err);
+        if (el.unmuteNotice) el.unmuteNotice.classList.remove('hidden');
+      });
     }
-    el.studioAudio.play().catch(() => {});
-  } else if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-    state.activeAudioEngine = 'youtube';
-    try {
-      state.ytPlayer.unMute();
-      state.ytPlayer.setVolume(state.volume);
-      state.ytPlayer.playVideo();
-    } catch (e) {}
-    ensureBackgroundAudioKeeper();
-  } else {
-    state.isPlaying = true;
   }
 
-  if (el.unmuteNotice) el.unmuteNotice.classList.add('hidden');
   updateMuteIcons();
   updatePlayState(true);
-
   if (track) updateMediaSession(track);
 }
 
 function pausePlayback() {
   state.userPaused = true;
-  if (state.activeAudioEngine === 'direct' && el.studioAudio) {
+  if (el.studioAudio) {
     try { el.studioAudio.pause(); } catch (e) {}
   }
-  if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
-    try {
-      state.ytPlayer.pauseVideo();
-    } catch (e) {}
-  }
-  pauseBackgroundAudioKeeper();
   updatePlayState(false);
   releaseDualWakeLock();
 }
@@ -1811,11 +1669,6 @@ function setupDeckControls() {
   el.deckNextBtn?.addEventListener('click', () => playNext(true));
   el.deckPrevBtn?.addEventListener('click', () => playPrev(true));
 
-  el.audioEngineToggle?.addEventListener('click', () => {
-    state.activeAudioEngine = state.activeAudioEngine === 'direct' ? 'youtube' : 'direct';
-    updateAudioEngineUI();
-    loadTrack(state.isPlaying);
-  });
 
   el.deckShuffleBtn?.addEventListener('click', () => {
     state.isShuffle = !state.isShuffle;
@@ -1899,19 +1752,13 @@ function setupDeckControls() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       if (state.isPlaying && !state.userPaused) {
-        if (state.activeAudioEngine === 'youtube') {
-          ensureBackgroundAudioKeeper();
-        }
         acquireDualWakeLock();
       }
     } else {
       if (state.isPlaying && !state.userPaused) {
         acquireDualWakeLock();
-        if (state.activeAudioEngine === 'direct' && el.studioAudio && el.studioAudio.paused) {
+        if (el.studioAudio && el.studioAudio.paused) {
           try { el.studioAudio.play(); } catch (e) {}
-        }
-        if (state.activeAudioEngine === 'youtube' && state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-          try { state.ytPlayer.playVideo(); } catch (e) {}
         }
         updatePlayState(true);
       }
@@ -1921,11 +1768,8 @@ function setupDeckControls() {
   window.addEventListener('focus', () => {
     if (state.isPlaying && !state.userPaused) {
       acquireDualWakeLock();
-      if (state.activeAudioEngine === 'direct' && el.studioAudio && el.studioAudio.paused) {
+      if (el.studioAudio && el.studioAudio.paused) {
         try { el.studioAudio.play(); } catch (e) {}
-      }
-      if (state.activeAudioEngine === 'youtube' && state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-        try { state.ytPlayer.playVideo(); } catch (e) {}
       }
     }
   });
@@ -1933,11 +1777,8 @@ function setupDeckControls() {
   window.addEventListener('pageshow', () => {
     if (state.isPlaying && !state.userPaused) {
       acquireDualWakeLock();
-      if (state.activeAudioEngine === 'direct' && el.studioAudio && el.studioAudio.paused) {
+      if (el.studioAudio && el.studioAudio.paused) {
         try { el.studioAudio.play(); } catch (e) {}
-      }
-      if (state.activeAudioEngine === 'youtube' && state.ytReady && state.ytPlayer && typeof state.ytPlayer.playVideo === 'function') {
-        try { state.ytPlayer.playVideo(); } catch (e) {}
       }
     }
   });
@@ -1974,9 +1815,7 @@ function updateMuteIcons() {
 // 12. INITIALIZATION
 // ==========================================================================
 function init() {
-  initYouTube();
   setupDeckControls();
-  updateAudioEngineUI();
   setupAudioElementListeners();
   setupAudioSession();
   initMediaSessionHandlers();
